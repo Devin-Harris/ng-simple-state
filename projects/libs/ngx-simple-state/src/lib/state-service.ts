@@ -8,42 +8,28 @@ import {
    createActionEffect,
    createAsyncActionEffect,
 } from './state-effect';
-import {
-   StateComputedSignal,
-   StateSignal,
-   stateSignal,
-   stateSignalView,
-} from './state-signal';
+import { StateSignal, stateSignal, stateSignalView } from './state-signal';
 
-type StateServiceFromInitialValueConstructor<
-   T extends {},
-   P extends StateSelectors<T>
-> = new (...args: any[]) => StateService<T, P>;
+type StateServiceFromInitialValueConstructor<T extends {}> = new (
+   ...args: any[]
+) => StateServiceBase<T>;
 
-export type StateSelectors<T extends {}> = {
-   [k: string]: (state: StateSignal<T>) => any;
-};
-
-export function StateServiceFromInitialValue<
-   T extends {},
-   P extends StateSelectors<T>
->(
-   intialValue: T,
-   selectors?: P,
-   effects?: (typeof EffectService<T>)[]
-): StateServiceFromInitialValueConstructor<T, P> {
-   return class extends StateService<T, P> {
+export function StateService<InitialValueType extends {}>(
+   intialValue: InitialValueType,
+   effects?: (typeof EffectService<InitialValueType>)[]
+): StateServiceFromInitialValueConstructor<InitialValueType> {
+   return class extends StateServiceBase<InitialValueType> {
       constructor() {
-         super(intialValue, selectors, effects);
+         super(intialValue, effects);
       }
    };
 }
 
-export class StateService<T extends {}, S extends StateSelectors<T>> {
+export class StateServiceBase<InitialValueType extends {}> {
    /**
     * State object with all fields as signals
     */
-   readonly state: StateSignal<T> & StateComputedSignal<S>;
+   readonly state: StateSignal<InitialValueType>;
 
    /**
     * State object with values pulled out of all internal signals
@@ -55,28 +41,10 @@ export class StateService<T extends {}, S extends StateSelectors<T>> {
    protected destroyed = new Subject<void>();
 
    constructor(
-      intialValue: T,
-      selectors?: S,
-      effects?: (typeof EffectService<T>)[]
+      intialValue: InitialValueType,
+      effects?: (typeof EffectService<InitialValueType>)[]
    ) {
-      this.state = stateSignal(intialValue, selectors);
-
-      if (selectors) {
-         const keys = Object.keys(selectors);
-         const stateKeys = new Set(Object.keys(intialValue));
-         for (const selector of keys) {
-            if (stateKeys.has(selector)) {
-               throw new Error(
-                  'Selector names must not already be defined from the state object'
-               );
-            }
-
-            // @ts-ignore
-            this.state[selector] = computed(() => {
-               return selectors[selector](this.state);
-            });
-         }
-      }
+      this.state = stateSignal(intialValue);
 
       if (effects) {
          for (const effect of effects) {
@@ -95,22 +63,23 @@ export class StateService<T extends {}, S extends StateSelectors<T>> {
       this.destroyed.next();
    }
 
-   protected createActionEffect<P>(
-      ...args: ActionEffectArgs<T, S, CreateAction<P> | CreateActionNoProps, P>
+   protected createActionEffect<ActionProps>(
+      ...args: ActionEffectArgs<
+         InitialValueType,
+         CreateAction<ActionProps> | CreateActionNoProps,
+         ActionProps
+      >
    ) {
-      // @ts-ignore
       return createActionEffect(this.state, this.destroyed, ...args);
    }
 
-   protected createAsyncActionEffect<P>(
+   protected createAsyncActionEffect<ActionProps>(
       ...args: ActionEffectAsyncArgs<
-         T,
-         S,
-         CreateAction<P> | CreateActionNoProps,
-         P
+         InitialValueType,
+         CreateAction<ActionProps> | CreateActionNoProps,
+         ActionProps
       >
    ) {
-      // @ts-ignore
       return createAsyncActionEffect(this.state, this.destroyed, ...args);
    }
 }

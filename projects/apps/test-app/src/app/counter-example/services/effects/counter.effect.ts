@@ -1,8 +1,8 @@
 import { EffectService } from 'projects/libs/ngx-simple-state/src/lib/effect-service';
 import { decrement, increment, reset } from '../counter.actions';
-import { State, selectors } from '../counter.model';
+import { State } from '../counter.model';
 
-export class CounterEffects extends EffectService<State, typeof selectors> {
+export class CounterEffects extends EffectService<State> {
    registerCounterEffects() {
       this.createActionEffect(increment, (state, action) => {
          state.count.update((c) => c + 1);

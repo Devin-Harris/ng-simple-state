@@ -8,46 +8,40 @@ import {
    createActionEffect,
    createAsyncActionEffect,
 } from './state-effect';
-import { StateSelectors } from './state-service';
-import { StateComputedSignal, StateSignal } from './state-signal';
+import { StateSignal } from './state-signal';
 
-export abstract class EffectService<
-   T extends {},
-   S extends StateSelectors<T> = {}
-> {
+export abstract class EffectService<InitialValueType extends {}> {
    /**
     * State object with all fields as signals
     */
-   protected state: StateSignal<T> & StateComputedSignal<S>;
+   protected state: StateSignal<InitialValueType>;
 
    protected destroyed = new Subject<void>();
 
-   constructor(
-      state: StateSignal<T> & StateComputedSignal<S>,
-      destroyed: Subject<void>
-   ) {
+   constructor(state: StateSignal<InitialValueType>, destroyed: Subject<void>) {
       this.state = state;
       this.destroyed = destroyed;
    }
 
    abstract registerCounterEffects(): void;
 
-   protected createActionEffect<P>(
-      ...args: ActionEffectArgs<T, S, CreateAction<P> | CreateActionNoProps, P>
+   protected createActionEffect<ActionProps>(
+      ...args: ActionEffectArgs<
+         InitialValueType,
+         CreateAction<ActionProps> | CreateActionNoProps,
+         ActionProps
+      >
    ) {
-      // @ts-ignore
       return createActionEffect(this.state, this.destroyed, ...args);
    }
 
-   protected createAsyncActionEffect<P>(
+   protected createAsyncActionEffect<ActionProps>(
       ...args: ActionEffectAsyncArgs<
-         T,
-         S,
-         CreateAction<P> | CreateActionNoProps,
-         P
+         InitialValueType,
+         CreateAction<ActionProps> | CreateActionNoProps,
+         ActionProps
       >
    ) {
-      // @ts-ignore
       return createAsyncActionEffect(this.state, this.destroyed, ...args);
    }
 }
