@@ -34,9 +34,7 @@ export class StateServiceBase<InitialValueType extends {}> {
    /**
     * State object with values pulled out of all internal signals
     */
-   readonly view = computed(() => {
-      return stateSignalView(this.state);
-   });
+   readonly view = computed(() => stateSignalView(this.state));
 
    protected destroyed = new Subject<void>();
 

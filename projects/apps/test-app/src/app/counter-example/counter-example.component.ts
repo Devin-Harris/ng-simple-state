@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { CounterStateService } from './services/counter-state.service';
-import { decrement, increment, reset } from './services/counter.actions';
+import { CounterStateService } from './state/counter-state.service';
+import { decrement, increment, reset } from './state/counter.actions';
 
 @Component({
    selector: 'ngx-simple-state-counter-example',

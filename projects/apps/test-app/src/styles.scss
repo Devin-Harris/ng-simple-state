@@ -1,1 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
+* {
+   padding: 0;
+   margin: 0;
+   box-sizing: border-box;
+}
+
+button {
+   padding: 0.5em;
+   border-radius: 0.25em;
+   outline: none;
+   border: none;
+   background-color: rgb(216, 216, 216);
+   color: black;
+   cursor: pointer;
+   transition: 0.3s;
+   &[disabled] {
+      cursor: default;
+      background-color: rgb(241, 241, 241);
+      color: rgb(87, 87, 87);
+   }
+   a {
+      color: black;
+   }
+}

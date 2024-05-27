@@ -1,0 +1,17 @@
+.navigation-bar {
+   display: flex;
+   justify-content: flex-start;
+   align-items: center;
+   padding: 0.5em;
+   border-bottom: 1px solid gray;
+
+   .lhs {
+      flex-grow: 1;
+      button {
+         margin-right: 1em;
+         a {
+            text-decoration: none;
+         }
+      }
+   }
+}

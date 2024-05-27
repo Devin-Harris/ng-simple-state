@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { AppStateService } from './state/app-state.service';
 
 @Component({
    selector: 'ngx-simple-state-root',
@@ -8,4 +9,6 @@ import { RouterLink, RouterOutlet } from '@angular/router';
    standalone: true,
    imports: [RouterLink, RouterOutlet],
 })
-export class AppComponent {}
+export class AppComponent {
+   readonly appState = inject(AppStateService);
+}

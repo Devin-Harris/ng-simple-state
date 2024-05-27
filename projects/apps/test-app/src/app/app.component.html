@@ -1,1 +1,16 @@
+<div class="navigation-bar">
+   <div class="lhs">
+      <button>
+         <a routerLink="counter-example">Counter Example</a>
+      </button>
+
+      <button>
+         <a routerLink="async-load-example">Async Load Example</a>
+      </button>
+   </div>
+   <div class="rhs">
+      Current User Name: {{ appState.state.currentUserName() }}
+   </div>
+</div>
+
 <router-outlet></router-outlet>

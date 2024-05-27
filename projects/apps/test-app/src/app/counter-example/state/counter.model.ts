@@ -6,17 +6,17 @@ import {
 export interface State {
    count: number;
 
+   lessThan5: StateSelector<State, boolean>;
    lessThan10: StateSelector<State, boolean>;
-   lessThan100: StateSelector<State, boolean>;
-   between10and100: StateSelector<State, boolean>;
+   between5and10: StateSelector<State, boolean>;
 }
 
 export const initialValue: State = {
    count: 0,
 
+   lessThan5: createStateSelector((state) => state.count() < 5),
    lessThan10: createStateSelector((state) => state.count() < 10),
-   lessThan100: createStateSelector((state) => state.count() < 100),
-   between10and100: createStateSelector(
-      (state) => !state.lessThan10() && state.lessThan100()
+   between5and10: createStateSelector(
+      (state) => !state.lessThan5() && state.lessThan10()
    ),
 };
