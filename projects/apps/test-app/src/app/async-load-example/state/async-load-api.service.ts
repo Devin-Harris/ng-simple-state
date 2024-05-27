@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { names } from '../../state/names';
 
+/**
+ * Fake api service representing an api request that could error
+ * and takes some time to return a response
+ */
 @Injectable({ providedIn: 'root' })
 export class AsyncLoadApiService {
    async getEntity(id: number) {

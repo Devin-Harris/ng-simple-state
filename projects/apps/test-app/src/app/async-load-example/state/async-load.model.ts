@@ -2,22 +2,12 @@ import {
    StateSelector,
    createStateSelector,
 } from 'projects/libs/ngx-simple-state/src/lib/state-signal';
-
-export interface Error {
-   message: string;
-}
-
-export enum LoadingState {
-   Init,
-   Loading,
-   Loaded,
-}
-export type ErrorState = { error: Error };
-export type CallState = LoadingState | ErrorState;
-function isErrorState(callstate: CallState): callstate is ErrorState {
-   // @ts-ignore
-   return !!callstate.error;
-}
+import {
+   CallState,
+   Error,
+   LoadingState,
+   isErrorState,
+} from './async-load-helper.model';
 
 export interface State {
    entityName: string | null;

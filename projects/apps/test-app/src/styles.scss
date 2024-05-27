@@ -1,25 +1,43 @@
 /* You can add global styles to this file, and also import other style files */
+@use './styles/colors';
+
+body {
+   background-color: colors.$background;
+   color: colors.$light;
+}
+
 * {
    padding: 0;
    margin: 0;
    box-sizing: border-box;
+   font-family: Arial, Helvetica, sans-serif;
 }
 
 button {
-   padding: 0.5em;
-   border-radius: 0.25em;
-   outline: none;
-   border: none;
-   background-color: rgb(216, 216, 216);
-   color: black;
    cursor: pointer;
-   transition: 0.3s;
-   &[disabled] {
-      cursor: default;
-      background-color: rgb(241, 241, 241);
-      color: rgb(87, 87, 87);
+   outline: 0;
+   color: colors.$light;
+   background-color: colors.$primary;
+   border-color: colors.$primary;
+   display: inline-block;
+   font-weight: 400;
+   line-height: 1.5;
+   text-align: center;
+   border: 1px solid transparent;
+   padding: 6px 12px;
+   font-size: 16px;
+   border-radius: 0.25rem;
+   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out;
+   &:hover {
+      color: colors.$light;
+      background-color: darken(colors.$primary, 5);
+      border-color: darken(colors.$primary, 5);
    }
-   a {
-      color: black;
+   &:disabled {
+      cursor: not-allowed;
+      background-color: lighten(colors.$dark, 5);
+      color: colors.$dark;
+      border-color: colors.$dark;
    }
 }

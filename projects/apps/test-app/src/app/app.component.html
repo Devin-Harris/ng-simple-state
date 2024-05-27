@@ -1,10 +1,17 @@
 <div class="navigation-bar">
    <div class="lhs">
-      <button *ngFor="let route of routes">
-         <a [routerLink]="route.path">{{ route.path }}</a>
-      </button>
+      <a
+         *ngFor="let route of routes"
+         class="navigation-link"
+         [routerLink]="route.path"
+         routerLinkActive="active"
+      >
+         {{ route.path }}
+      </a>
    </div>
    <div class="rhs"></div>
 </div>
 
-<router-outlet></router-outlet>
+<div class="root-router-content">
+   <router-outlet></router-outlet>
+</div>

@@ -1,13 +1,24 @@
 import { inject } from '@angular/core';
 import { EffectService } from 'projects/libs/ngx-simple-state/src/lib/effect-service';
 import { AsyncLoadApiService } from '../async-load-api.service';
+import { LoadingState } from '../async-load-helper.model';
 import {
    loadEntity,
    loadEntityFailure,
    loadEntitySuccess,
 } from '../async-load.actions';
-import { LoadingState, State } from '../async-load.model';
+import { State } from '../async-load.model';
 
+/**
+ * Effect classes extends the base EffectService class.
+ * They require a State generic type to be defined which should match the state type
+ * of the StateService that will be consuming the effect class. Effect classes can
+ * in theory be consumed by multiple stateservices but it is unlikely and not advised.
+ * Each class has a abstract registerEffects method that should be responsible for defining the
+ * actions and how they update the state on the stateService. Utilize the this.createActionEffect
+ * method to automatically link up the stateSignal and destroyed subjects. This ensures the correct state
+ * signal is manipulated and the subscriptions to the actions are properly disposed of when the state service is destroyed
+ */
 export class AsyncLoadEffects extends EffectService<State> {
    readonly apiService = inject(AsyncLoadApiService);
 

@@ -70,6 +70,8 @@ export function stateSignal<InitialValueType extends {}>(
 
    state.view = computed(() => stateSignalView(state));
 
+   Object.freeze(state);
+
    return state;
 }
 
