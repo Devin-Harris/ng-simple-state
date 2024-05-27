@@ -1,0 +1,19 @@
+:host {
+   border: 1px solid white;
+   border-radius: 0.25em;
+   padding: 0.5em;
+   .state-views {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: 1em;
+      justify-content: flex-start;
+      align-items: center;
+      width: max-content;
+      label {
+         font-weight: bold;
+      }
+      pre {
+         margin: 0.5em 0;
+      }
+   }
+}

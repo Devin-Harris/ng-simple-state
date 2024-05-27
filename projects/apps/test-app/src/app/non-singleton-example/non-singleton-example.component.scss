@@ -1,0 +1,9 @@
+.instances {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: flex-start;
+   align-items: center;
+   ngx-simple-state-singleton-vs-nonsingleton {
+      margin-right: 1em;
+   }
+}

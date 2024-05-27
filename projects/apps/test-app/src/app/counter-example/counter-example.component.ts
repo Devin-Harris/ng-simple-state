@@ -6,7 +6,10 @@ import { decrement, increment, reset } from './state/counter.actions';
 @Component({
    selector: 'ngx-simple-state-counter-example',
    templateUrl: './counter-example.component.html',
-   styleUrls: ['./counter-example.component.scss'],
+   styleUrls: [
+      './counter-example.component.scss',
+      './../../styles/example-page.scss',
+   ],
    standalone: true,
    imports: [CommonModule],
 })

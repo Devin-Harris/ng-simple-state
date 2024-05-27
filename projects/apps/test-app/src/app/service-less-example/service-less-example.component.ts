@@ -5,7 +5,10 @@ import { serviceLessState } from './state/service-less.model';
 @Component({
    selector: 'ngx-simple-state-service-less-example',
    templateUrl: './service-less-example.component.html',
-   styleUrls: ['./service-less-example.component.scss'],
+   styleUrls: [
+      './service-less-example.component.scss',
+      './../../styles/example-page.scss',
+   ],
    standalone: true,
    imports: [CommonModule],
 })

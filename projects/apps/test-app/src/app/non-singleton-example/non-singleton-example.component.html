@@ -1,0 +1,15 @@
+<div class="example-page">
+   <h2>Non Singleton Example</h2>
+
+   <br />
+   <button (click)="addInstance()">Add instance</button>
+   <br />
+   <br />
+
+   <div class="instances">
+      <ngx-simple-state-singleton-vs-nonsingleton
+         *ngFor="let id of instances; trackBy: trackBy"
+         [id]="id"
+      ></ngx-simple-state-singleton-vs-nonsingleton>
+   </div>
+</div>

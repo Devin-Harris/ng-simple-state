@@ -7,7 +7,10 @@ import { loadEntity } from './state/async-load.actions';
 @Component({
    selector: 'ngx-simple-state-async-load-example',
    templateUrl: './async-load-example.component.html',
-   styleUrls: ['./async-load-example.component.scss'],
+   styleUrls: [
+      './async-load-example.component.scss',
+      './../../styles/example-page.scss',
+   ],
    standalone: true,
    imports: [CommonModule],
 })
