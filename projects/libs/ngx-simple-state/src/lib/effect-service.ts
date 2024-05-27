@@ -23,7 +23,7 @@ export abstract class EffectService<InitialValueType extends {}> {
       this.destroyed = destroyed;
    }
 
-   abstract registerCounterEffects(): void;
+   abstract registerEffects(): void;
 
    protected createActionEffect<ActionProps>(
       ...args: ActionEffectArgs<

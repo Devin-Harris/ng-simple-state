@@ -41,7 +41,7 @@ export class StateServiceBase<InitialValueType extends {}> {
       if (effects) {
          for (const effect of effects) {
             // @ts-ignore
-            new effect(this.state, this.destroyed).registerCounterEffects();
+            new effect(this.state, this.destroyed).registerEffects();
          }
       }
    }

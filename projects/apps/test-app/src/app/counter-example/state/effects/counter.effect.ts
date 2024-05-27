@@ -3,7 +3,7 @@ import { decrement, increment, reset } from '../counter.actions';
 import { State } from '../counter.model';
 
 export class CounterEffects extends EffectService<State> {
-   registerCounterEffects() {
+   registerEffects() {
       this.createActionEffect(increment, (state, action) => {
          state.count.update((c) => c + 1);
       });

@@ -26,7 +26,7 @@ const selectors: Selectors = {
  * Note serviceLessState defined globally like this will not be lazy loaded
  * This state will be allocated when the app initializes regardless of where it is first used.
  * State Services build there stateSignal internally thus are not created until they are injected somwhere.
- * Globally defined state may be a pattern you want depending on your use case, but should be cautioned
+ * Globally defined state may be a pattern you want depending on your use case, but should be cautioned if memory usage is a concern
  */
 export const serviceLessState = stateSignal({
    count: 0,

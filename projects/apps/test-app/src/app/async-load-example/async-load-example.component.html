@@ -2,8 +2,6 @@ Async Load Example
 
 <pre>{{ stateService.state.view() | json }}</pre>
 
-<p>Matching current username: {{ stateService.matchingCurrentUserName() }}</p>
-
 <button [disabled]="stateService.state.loading()" (click)="onLoad()">
    Load Entity
 </button>
