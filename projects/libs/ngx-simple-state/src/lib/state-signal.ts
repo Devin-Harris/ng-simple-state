@@ -72,10 +72,8 @@ export function stateSignal<InitialValueType extends {}>(
          for (const k of keys) {
             const v = value[k] as InitialValueType[keyof InitialValueType];
 
-            if (typeof v === 'function') {
-               throw new Error(
-                  'Patching on function state values is not allowed'
-               );
+            if (isStateSelector(v)) {
+               throw new Error('Patching on selector values is not allowed');
             }
 
             (state[k] as WritableSignal<typeof v>).set(v);
