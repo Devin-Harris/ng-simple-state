@@ -1,11 +1,7 @@
 <div class="navigation-bar">
    <div class="lhs">
-      <button>
-         <a routerLink="counter-example">Counter Example</a>
-      </button>
-
-      <button>
-         <a routerLink="async-load-example">Async Load Example</a>
+      <button *ngFor="let route of routes">
+         <a [routerLink]="route.path">{{ route.path }}</a>
       </button>
    </div>
    <div class="rhs">

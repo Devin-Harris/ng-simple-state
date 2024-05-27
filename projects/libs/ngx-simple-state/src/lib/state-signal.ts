@@ -12,13 +12,8 @@ export type StateSignalType<T> = {
 
 export type StateSignal<T> = StateSignalType<T> & {
    patch: (value: Partial<T>) => void;
+   view: Signal<T>;
 };
-
-export type StateComputedSignalType<T> = {
-   [x in keyof T]: Signal<T[x]>;
-};
-
-export type StateComputedSignal<T> = StateComputedSignalType<T>;
 
 const NGX_SIMPLE_STATE_SELECTOR_TOKEN = 'NGX_SIMPLE_STATE_SELECTOR_TOKEN';
 export function createStateSelector<InitialValueType extends {}, ReturnType>(
@@ -41,31 +36,23 @@ function isStateSelector<T, R>(fn: any): fn is StateSelector<T, R> {
 export function stateSignal<InitialValueType extends {}>(
    intialValue: InitialValueType
 ): StateSignal<InitialValueType> {
-   let state: StateSignalType<InitialValueType> =
-      {} as StateSignalType<InitialValueType>;
+   let state: StateSignal<InitialValueType> = Object.create(
+      null
+   ) as StateSignal<InitialValueType>;
    const keys = Object.keys(intialValue) as (keyof InitialValueType)[];
    keys.forEach((k: keyof InitialValueType) => {
       const value = intialValue[k];
 
-      let s = undefined;
-      if (isStateSelector(value)) {
-         s = computed(() =>
-            // @ts-ignore
-            value(state)
-         );
-      } else {
-         s = signal(value);
-      }
-
       // @ts-ignore
-      state[k] = s;
+      state[k] = isStateSelector(value)
+         ? computed(() => value(state))
+         : signal(value);
    });
 
    if (state === null) {
       throw new Error('Must provide an inital object value to stateSignal');
    }
 
-   // @ts-ignore
    state.patch = (value: Partial<InitialValueType>) => {
       if (state) {
          const keys = Object.keys(value) as (keyof InitialValueType)[];
@@ -81,15 +68,17 @@ export function stateSignal<InitialValueType extends {}>(
       }
    };
 
-   return state as StateSignal<InitialValueType>;
+   state.view = computed(() => stateSignalView(state));
+
+   return state;
 }
 
 export function stateSignalView<
    T extends StateSignal<InitialValueType>,
    InitialValueType
 >(state: T) {
-   const excludedKeys = new Set<keyof T>(['patch']);
-   const o: { [x: string]: T[keyof T] } = {};
+   const excludedKeys = new Set<keyof T>(['patch', 'view']);
+   const o: { [x: string]: T[keyof T] } = Object.create(null);
    const keys = Object.keys(state) as (keyof T)[];
    keys
       .filter((k) => !excludedKeys.has(k))
@@ -97,5 +86,5 @@ export function stateSignalView<
          // @ts-ignore
          o[k] = state[k]();
       });
-   return o;
+   return o as InitialValueType;
 }

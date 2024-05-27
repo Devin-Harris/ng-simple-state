@@ -1,5 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { routes } from './app.config';
 import { AppStateService } from './state/app-state.service';
 
 @Component({
@@ -7,8 +9,10 @@ import { AppStateService } from './state/app-state.service';
    templateUrl: './app.component.html',
    styleUrls: ['./app.component.scss'],
    standalone: true,
-   imports: [RouterLink, RouterOutlet],
+   imports: [CommonModule, RouterModule],
 })
 export class AppComponent {
    readonly appState = inject(AppStateService);
+
+   readonly routes = routes;
 }

@@ -1,4 +1,3 @@
-import { computed } from '@angular/core';
 import { Subject } from 'rxjs';
 import { EffectService } from './effect-service';
 import { CreateAction, CreateActionNoProps } from './state-action';
@@ -8,7 +7,7 @@ import {
    createActionEffect,
    createAsyncActionEffect,
 } from './state-effect';
-import { StateSignal, stateSignal, stateSignalView } from './state-signal';
+import { StateSignal, stateSignal } from './state-signal';
 
 type StateServiceFromInitialValueConstructor<T extends {}> = new (
    ...args: any[]
@@ -30,11 +29,6 @@ export class StateServiceBase<InitialValueType extends {}> {
     * State object with all fields as signals
     */
    readonly state: StateSignal<InitialValueType>;
-
-   /**
-    * State object with values pulled out of all internal signals
-    */
-   readonly view = computed(() => stateSignalView(this.state));
 
    protected destroyed = new Subject<void>();
 

@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 export type Action = CreateAction<any> | CreateActionNoProps;
 
 export function props<T>() {
-   return {} as T;
+   return Object.create(null) as T;
 }
 export type CreateActionNoProps = {
    type: string;
