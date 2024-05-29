@@ -20,6 +20,7 @@ export function createStateSelector<T extends {}, R>(
 
 export function isStateSelector<T, R>(fn: any): fn is StateSelector<T, R> {
    return (
+      fn &&
       typeof fn === 'function' &&
       fn['NGX_SIMPLE_STATE_SELECTOR_TOKEN'] === NGX_SIMPLE_STATE_SELECTOR_TOKEN
    );

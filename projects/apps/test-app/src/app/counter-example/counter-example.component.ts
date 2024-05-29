@@ -17,7 +17,7 @@ export class CounterExampleComponent {
 
    constructor() {
       this.stateService.state.$setCount.subscribe((t) => {
-         console.log('here');
+         console.log('setCount called');
       });
    }
 

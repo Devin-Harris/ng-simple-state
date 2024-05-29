@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { StateService } from 'projects/libs/ngx-simple-state/src/lib/state-service';
+import { takeUntil } from 'rxjs';
+import { AsyncLoadApiService } from './async-load-api.service';
 import { initialValue } from './async-load.model';
-import { AsyncLoadEffects } from './effects/async-load.effect';
 
 /**
  * Utilizing the StateService, you can pass an intial value and an array of effects classes.
@@ -11,6 +12,20 @@ import { AsyncLoadEffects } from './effects/async-load.effect';
  * The StateService will automatically call the registerEffects method on all these effects classes.
  */
 @Injectable({ providedIn: 'root' })
-export class AsyncLoadStateService extends StateService(initialValue, [
-   AsyncLoadEffects,
-]) {}
+export class AsyncLoadStateService extends StateService(initialValue) {
+   readonly apiService = inject(AsyncLoadApiService);
+
+   constructor() {
+      super();
+      this.state.$loadEntity
+         .pipe(takeUntil(this.destroyed))
+         .subscribe(async (props) => {
+            try {
+               const response = await this.apiService.getEntity(props.id);
+               return this.state.loadEntitySuccess(response);
+            } catch (error: any) {
+               return this.state.loadEntityFailure({ error });
+            }
+         });
+   }
+}

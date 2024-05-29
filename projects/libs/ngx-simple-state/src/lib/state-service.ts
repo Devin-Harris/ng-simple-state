@@ -1,12 +1,4 @@
 import { Subject } from 'rxjs';
-import { EffectService } from './effect-service';
-import { CreateAction, CreateActionNoProps } from './state-action';
-import {
-   ActionEffectArgs,
-   ActionEffectAsyncArgs,
-   createActionEffect,
-   createAsyncActionEffect,
-} from './state-effect';
 import { StateSignal, stateSignal } from './state-signal';
 
 type StateServiceFromInitialValueConstructor<T extends {}> = new (
@@ -14,12 +6,11 @@ type StateServiceFromInitialValueConstructor<T extends {}> = new (
 ) => StateServiceBase<T>;
 
 export function StateService<InitialValueType extends {}>(
-   intialValue: InitialValueType,
-   effects?: (typeof EffectService<InitialValueType>)[]
+   intialValue: InitialValueType
 ): StateServiceFromInitialValueConstructor<InitialValueType> {
    return class extends StateServiceBase<InitialValueType> {
       constructor() {
-         super(intialValue, effects);
+         super(intialValue);
       }
    };
 }
@@ -32,18 +23,8 @@ export class StateServiceBase<InitialValueType extends {}> {
 
    protected destroyed = new Subject<void>();
 
-   constructor(
-      intialValue: InitialValueType,
-      effects?: (typeof EffectService<InitialValueType>)[]
-   ) {
+   constructor(intialValue: InitialValueType) {
       this.state = stateSignal(intialValue);
-
-      if (effects) {
-         for (const effect of effects) {
-            // @ts-ignore
-            new effect(this.state, this.destroyed).registerEffects();
-         }
-      }
    }
 
    /**
@@ -53,25 +34,5 @@ export class StateServiceBase<InitialValueType extends {}> {
     */
    destroy(): void {
       this.destroyed.next();
-   }
-
-   protected createActionEffect<ActionProps>(
-      ...args: ActionEffectArgs<
-         InitialValueType,
-         CreateAction<ActionProps> | CreateActionNoProps,
-         ActionProps
-      >
-   ) {
-      return createActionEffect(this.state, this.destroyed, ...args);
-   }
-
-   protected createAsyncActionEffect<ActionProps>(
-      ...args: ActionEffectAsyncArgs<
-         InitialValueType,
-         CreateAction<ActionProps> | CreateActionNoProps,
-         ActionProps
-      >
-   ) {
-      return createAsyncActionEffect(this.state, this.destroyed, ...args);
    }
 }

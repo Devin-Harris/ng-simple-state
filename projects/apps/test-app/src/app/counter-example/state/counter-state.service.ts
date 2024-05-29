@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StateService } from 'projects/libs/ngx-simple-state/src/lib/state-service';
 import { initialValue } from './counter.model';
-import { CounterEffects } from './effects/counter.effect';
 
 /**
  * Utilizing the StateService, you can pass an intial value and an array of effects classes.
@@ -11,6 +10,4 @@ import { CounterEffects } from './effects/counter.effect';
  * The StateService will automatically call the registerEffects method on all these effects classes.
  */
 @Injectable({ providedIn: 'root' })
-export class CounterStateService extends StateService(initialValue, [
-   CounterEffects,
-]) {}
+export class CounterStateService extends StateService(initialValue) {}
