@@ -1,7 +1,7 @@
 import {
    StateSelector,
    createStateSelector,
-} from 'projects/libs/ngx-simple-state/src/lib/state-signal';
+} from 'projects/libs/ngx-simple-state/src/lib/state-selector';
 import {
    CallState,
    Error,

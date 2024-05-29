@@ -15,20 +15,16 @@ import { serviceLessState } from './state/service-less.model';
 export class ServiceLessExampleComponent {
    readonly serviceLessState = serviceLessState;
 
-   /**
-    * Lack of StateService forces the updates to the state to be done imperatively.
-    * The StateSignal should have all the mutatable fields defined as signals automatically,
-    * so simply manipulating them in such a manner can allow you some flexibility on how and where
-    * the state changes. This can lead to difficult debugging if state changes happen in many places
-    * so its important to keep track of where your stateSignal is used.
-    */
    onIncrement() {
-      this.serviceLessState.count.update((c) => c + 1);
+      serviceLessState.increment();
    }
    onDecrement() {
-      this.serviceLessState.count.update((c) => c - 1);
+      serviceLessState.decrement();
    }
    onReset() {
-      this.serviceLessState.count.set(0);
+      serviceLessState.reset();
+   }
+   onSetTo100() {
+      serviceLessState.setCount(100);
    }
 }

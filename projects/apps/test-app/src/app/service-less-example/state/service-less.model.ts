@@ -1,7 +1,13 @@
 import {
+   StateEffect,
+   createStateEffect,
+} from 'projects/libs/ngx-simple-state/src/lib/state-effect';
+import {
    StateSelector,
-   StateSignal,
    createStateSelector,
+} from 'projects/libs/ngx-simple-state/src/lib/state-selector';
+import {
+   StateSignal,
    stateSignal,
 } from 'projects/libs/ngx-simple-state/src/lib/state-signal';
 
@@ -16,7 +22,20 @@ interface Selectors {
    lessThan10: StateSelector<State, boolean>;
    between5and10: StateSelector<State, boolean>;
 }
-export type State = RootState & Selectors;
+interface Effects {
+   setCount: StateEffect<State, number>;
+   increment: StateEffect<State>;
+   decrement: StateEffect<State>;
+   reset: StateEffect<State>;
+}
+export type State = RootState & Selectors & Effects;
+
+const effects: Effects = {
+   setCount: createStateEffect((state, count) => state.count.set(count)),
+   increment: createStateEffect((state) => state.count.update((c) => c + 1)),
+   decrement: createStateEffect((state) => state.count.update((c) => c - 1)),
+   reset: createStateEffect((state) => state.setCount(0)),
+};
 
 const selectors: Selectors = {
    lessThan5: createStateSelector((state) => state.count() < 5),
@@ -34,5 +53,6 @@ const selectors: Selectors = {
  */
 export const serviceLessState: StateSignal<State> = stateSignal({
    count: 0,
+   ...effects,
    ...selectors,
 });

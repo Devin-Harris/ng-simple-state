@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { CounterStateService } from './state/counter-state.service';
-import { decrement, increment, reset } from './state/counter.actions';
 
 @Component({
    selector: 'ngx-simple-state-counter-example',
@@ -16,13 +15,22 @@ import { decrement, increment, reset } from './state/counter.actions';
 export class CounterExampleComponent {
    readonly stateService = inject(CounterStateService);
 
+   constructor() {
+      this.stateService.state.$setCount.subscribe((t) => {
+         console.log('here');
+      });
+   }
+
    onIncrement() {
-      increment();
+      this.stateService.state.increment();
    }
    onDecrement() {
-      decrement();
+      this.stateService.state.decrement();
    }
    onReset() {
-      reset();
+      this.stateService.state.reset();
+   }
+   onSetTo100() {
+      this.stateService.state.setCount(100);
    }
 }
