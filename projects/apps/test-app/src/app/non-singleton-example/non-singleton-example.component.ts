@@ -18,6 +18,10 @@ export class NonSingletonExampleComponent {
    trackBy = (index: number, item: number) => item;
 
    addInstance() {
-      this.instances.push(this.instances.length + 1);
+      this.instances.push(Math.max(...this.instances) + 1);
+   }
+
+   removeInstance(id: number) {
+      this.instances = this.instances.filter((i) => i !== id);
    }
 }

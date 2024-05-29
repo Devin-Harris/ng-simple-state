@@ -1,5 +1,8 @@
 <div class="singleton-vs-non-container">
-   <h2>Instance {{ id }}</h2>
+   <div class="header">
+      <h2>Instance {{ id }}</h2>
+      <div (click)="removeInstance.emit()" class="remove">&#10006;</div>
+   </div>
 
    <br />
 

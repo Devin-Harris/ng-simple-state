@@ -10,6 +10,7 @@
       <ngx-simple-state-singleton-vs-nonsingleton
          *ngFor="let id of instances; trackBy: trackBy"
          [id]="id"
+         (removeInstance)="removeInstance(id)"
       ></ngx-simple-state-singleton-vs-nonsingleton>
    </div>
 </div>

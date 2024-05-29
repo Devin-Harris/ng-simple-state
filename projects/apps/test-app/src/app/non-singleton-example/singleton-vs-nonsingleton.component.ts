@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { NonSingletonCounterStateService } from './state/non-singleton-counter-state.service';
 import { SingletonCounterStateService } from './state/singleton-counter-state.service';
 
@@ -16,6 +16,8 @@ import { SingletonCounterStateService } from './state/singleton-counter-state.se
 })
 export class SingletonVsNonSingletonComponent {
    @Input() id: number = 0;
+
+   @Output() removeInstance = new EventEmitter<void>();
 
    readonly singletonService = inject(SingletonCounterStateService);
 

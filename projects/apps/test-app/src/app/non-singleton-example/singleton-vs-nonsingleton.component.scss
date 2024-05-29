@@ -1,7 +1,31 @@
+@use '../../styles/colors';
+
 :host {
    border: 1px solid white;
    border-radius: 0.25em;
    padding: 0.5em;
+   position: relative;
+   .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .remove {
+         width: 2em;
+         height: 2em;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         cursor: pointer;
+         background-color: colors.$light;
+         position: absolute;
+         top: 0;
+         right: 0;
+         color: colors.$dark;
+         border-radius: 0 0 0 0.25em;
+      }
+   }
+
    .state-views {
       display: grid;
       grid-template-columns: 1fr;
