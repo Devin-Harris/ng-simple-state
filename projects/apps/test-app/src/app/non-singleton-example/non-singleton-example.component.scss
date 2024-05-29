@@ -1,9 +1,5 @@
 .instances {
-   display: flex;
-   flex-wrap: wrap;
-   justify-content: flex-start;
-   align-items: center;
-   ngx-simple-state-singleton-vs-nonsingleton {
-      margin-right: 1em;
-   }
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+   grid-gap: 1em;
 }
