@@ -1,7 +1,7 @@
 import {
-   StateEffect,
-   createStateEffect,
-} from 'projects/libs/ngx-simple-state/src/lib/state-effect';
+   StateAction,
+   createStateAction,
+} from 'projects/libs/ngx-simple-state/src/lib/state-action';
 import {
    StateSelector,
    createStateSelector,
@@ -16,13 +16,13 @@ interface Selectors {
    lessThan10: StateSelector<State, boolean>;
    between5and10: StateSelector<State, boolean>;
 }
-interface Effects {
-   setCount: StateEffect<State, number>;
-   increment: StateEffect<State>;
-   decrement: StateEffect<State>;
-   reset: StateEffect<State>;
+interface Actions {
+   setCount: StateAction<State, number>;
+   increment: StateAction<State>;
+   decrement: StateAction<State>;
+   reset: StateAction<State>;
 }
-export type State = RootState & Selectors & Effects;
+export type State = RootState & Selectors & Actions;
 
 /**
  * Note serviceLessState defined globally like this will not be lazy loaded
@@ -30,18 +30,17 @@ export type State = RootState & Selectors & Effects;
  * State Services build there stateSignal internally thus are not created until they are injected somwhere.
  * Globally defined state may be a pattern you want depending on your use case, but should be cautioned if memory usage is a concern
  */
-const initialValue: State = {
+export const serviceLessState = stateSignal<State>({
    count: 0,
 
-   setCount: createStateEffect((state, count) => state.count.set(count)),
-   increment: createStateEffect((state) => state.count.update((c) => c + 1)),
-   decrement: createStateEffect((state) => state.count.update((c) => c - 1)),
-   reset: createStateEffect((state) => state.setCount(0)),
+   setCount: createStateAction((state, count) => state.count.set(count)),
+   increment: createStateAction((state) => state.count.update((c) => c + 1)),
+   decrement: createStateAction((state) => state.count.update((c) => c - 1)),
+   reset: createStateAction((state) => state.setCount(0)),
 
    lessThan5: createStateSelector((state) => state.count() < 5),
    lessThan10: createStateSelector((state) => state.count() < 10),
    between5and10: createStateSelector(
       (state) => !state.lessThan5() && state.lessThan10()
    ),
-};
-export const serviceLessState = stateSignal(initialValue);
+});

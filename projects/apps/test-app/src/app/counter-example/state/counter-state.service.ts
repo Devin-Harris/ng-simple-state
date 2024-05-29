@@ -3,11 +3,9 @@ import { StateService } from 'projects/libs/ngx-simple-state/src/lib/state-servi
 import { initialValue } from './counter.model';
 
 /**
- * Utilizing the StateService, you can pass an intial value and an array of effects classes.
- * Every field in the initialValue will be turned into a writable signal or a normal computed signal,
- * depending on if the field was created using the createStateSelector function. The effects array should be
- * an array of classes that extend the EffectService<State> class where State is the same type as the initialValue.
- * The StateService will automatically call the registerEffects method on all these effects classes.
+ * Utilizing the StateService, you can pass an intial value and every field in the initialValue
+ * will be turned into a writable signal, normal computed signal, or a callable action function and its subject counterpart.
+ * This depends on if the field was created using the createStateSelector function or the createStateAction function.
  */
 @Injectable({ providedIn: 'root' })
 export class CounterStateService extends StateService(initialValue) {}

@@ -1,7 +1,7 @@
 import {
-   StateEffect,
-   createStateEffect,
-} from 'projects/libs/ngx-simple-state/src/lib/state-effect';
+   StateAction,
+   createStateAction,
+} from 'projects/libs/ngx-simple-state/src/lib/state-action';
 import {
    StateSelector,
    createStateSelector,
@@ -18,12 +18,12 @@ export interface State {
    entityId: number | null;
    callState: CallState;
 
-   loadEntity: StateEffect<State, { id: number }>;
-   loadEntitySuccess: StateEffect<
+   loadEntity: StateAction<State, { id: number }>;
+   loadEntitySuccess: StateAction<
       State,
       { entityName: string; entityId: number }
    >;
-   loadEntityFailure: StateEffect<State, { error: Error }>;
+   loadEntityFailure: StateAction<State, { error: Error }>;
 
    loading: StateSelector<State, boolean>;
    error: StateSelector<State, Error | null>;
@@ -35,14 +35,14 @@ export const initialValue: State = {
    entityName: null,
    entityId: null,
 
-   // Effects
-   loadEntity: createStateEffect((state, props) =>
+   // Actions
+   loadEntity: createStateAction((state, props) =>
       state.callState.set(LoadingState.Loading)
    ),
-   loadEntitySuccess: createStateEffect((state, props) =>
+   loadEntitySuccess: createStateAction((state, props) =>
       state.patch({ ...props, callState: LoadingState.Loaded })
    ),
-   loadEntityFailure: createStateEffect((state, props) =>
+   loadEntityFailure: createStateAction((state, props) =>
       state.patch({ callState: { error: props.error } })
    ),
 

@@ -5,8 +5,4 @@ import { initialValue } from './singleton-counter.model';
 @Injectable()
 export class NonSingletonCounterStateService extends StateService(
    initialValue
-) {
-   increment() {
-      this.state.count.update((c) => c + 1);
-   }
-}
+) {}

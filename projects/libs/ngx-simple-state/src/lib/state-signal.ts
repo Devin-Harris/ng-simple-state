@@ -1,16 +1,16 @@
 import { Signal, WritableSignal, computed, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import {
-   NGX_SIMPLE_STATE_EFFECT_TOKEN,
-   StateEffect,
-   isStateEffect,
-} from './state-effect';
+   NGX_SIMPLE_STATE_ACTION_TOKEN,
+   StateAction,
+   isStateAction,
+} from './state-action';
 import { StateSelector, isStateSelector } from './state-selector';
 
 // Helper type to check if P is undefined
 type IsUndefined<P> = P extends undefined ? true : false;
 // Helper type to exclude StateSelector from the check
-type IsStateEffectOnly<T, K extends keyof T> = T[K] extends StateEffect<
+type IsStateActionOnly<T, K extends keyof T> = T[K] extends StateAction<
    any,
    any
 >
@@ -18,9 +18,9 @@ type IsStateEffectOnly<T, K extends keyof T> = T[K] extends StateEffect<
       ? false
       : true
    : false;
-// Helper type to exclude StateSelector and StateEffect
-type ExcludeSelectorsAndEffects<T> = {
-   [K in keyof T]: T[K] extends StateSelector<any, any> | StateEffect<any, any>
+// Helper type to exclude StateSelector and StateAction
+type ExcludeSelectorsAndActions<T> = {
+   [K in keyof T]: T[K] extends StateSelector<any, any> | StateAction<any, any>
       ? never
       : K;
 }[keyof T];
@@ -28,18 +28,18 @@ type ExcludeSelectorsAndEffects<T> = {
 type StateSignalType<T> = {
    [x in keyof T]: T[x] extends StateSelector<T, infer R>
       ? Signal<R>
-      : T[x] extends StateEffect<T, infer P>
+      : T[x] extends StateAction<T, infer P>
       ? IsUndefined<P> extends true
-         ? () => StateEffect<T, undefined>
-         : (props: P) => StateEffect<T, P>
+         ? () => StateAction<T, undefined>
+         : (props: P) => StateAction<T, P>
       : WritableSignal<T[x]>;
 } & {
-   [x in keyof T as IsStateEffectOnly<T, x> extends true
+   [x in keyof T as IsStateActionOnly<T, x> extends true
       ? `$${string & x}`
-      : never]: T[x] extends StateEffect<T, infer P> ? Subject<P> : never;
+      : never]: T[x] extends StateAction<T, infer P> ? Subject<P> : never;
 };
 
-type StateSignalPatchParam<T> = Partial<Pick<T, ExcludeSelectorsAndEffects<T>>>;
+type StateSignalPatchParam<T> = Partial<Pick<T, ExcludeSelectorsAndActions<T>>>;
 
 export type StateSignal<T> = StateSignalType<T> & {
    patch: (value: StateSignalPatchParam<T>) => void;
@@ -58,20 +58,20 @@ export function stateSignal<InitialValueType extends {}>(
       if (isStateSelector(value)) {
          // @ts-ignore
          state[k] = computed(() => value(state));
-      } else if (isStateEffect(value)) {
+      } else if (isStateAction(value)) {
          let subject: Subject<any> & {
-            NGX_SIMPLE_STATE_EFFECT_TOKEN?: 'NGX_SIMPLE_STATE_EFFECT_TOKEN';
+            NGX_SIMPLE_STATE_ACTION_TOKEN?: 'NGX_SIMPLE_STATE_ACTION_TOKEN';
          } = new Subject<any>();
-         subject['NGX_SIMPLE_STATE_EFFECT_TOKEN'] =
-            NGX_SIMPLE_STATE_EFFECT_TOKEN;
+         subject['NGX_SIMPLE_STATE_ACTION_TOKEN'] =
+            NGX_SIMPLE_STATE_ACTION_TOKEN;
 
          let fn: Function & {
-            NGX_SIMPLE_STATE_EFFECT_TOKEN?: 'NGX_SIMPLE_STATE_EFFECT_TOKEN';
+            NGX_SIMPLE_STATE_ACTION_TOKEN?: 'NGX_SIMPLE_STATE_ACTION_TOKEN';
          } = (props?: any) => {
             (value as Function)(state, props);
             subject.next(props);
          };
-         fn['NGX_SIMPLE_STATE_EFFECT_TOKEN'] = NGX_SIMPLE_STATE_EFFECT_TOKEN;
+         fn['NGX_SIMPLE_STATE_ACTION_TOKEN'] = NGX_SIMPLE_STATE_ACTION_TOKEN;
 
          // @ts-ignore
          state[k] = fn;
@@ -98,8 +98,8 @@ export function stateSignal<InitialValueType extends {}>(
             if (isStateSelector(v)) {
                throw new Error('Patching on selector values is not allowed');
             }
-            if (isStateEffect(v)) {
-               throw new Error('Patching on effect values is not allowed');
+            if (isStateAction(v)) {
+               throw new Error('Patching on action values is not allowed');
             }
 
             (state[k] as WritableSignal<typeof v>).set(v);
@@ -124,7 +124,7 @@ export function stateSignalView<
    keys
       .filter((k) => !excludedKeys.has(k))
       .forEach((k) => {
-         if (!isStateEffect(state[k])) {
+         if (!isStateAction(state[k])) {
             // @ts-ignore
             o[k] = state[k]();
          }

@@ -26,8 +26,4 @@ export class SingletonVsNonSingletonComponent {
    readonly nonSingletonService = inject(NonSingletonCounterStateService);
 
    readonly componentState = stateSignal(initialValue);
-
-   incrementComponentState() {
-      this.componentState.count.update((c) => c + 1);
-   }
 }
