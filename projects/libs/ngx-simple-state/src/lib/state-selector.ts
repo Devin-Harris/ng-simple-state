@@ -9,7 +9,7 @@ export const NGX_SIMPLE_STATE_SELECTOR_TOKEN = Symbol(
 );
 
 type CreateStateSelectorFn<T, R> = ((state: StateSignal<T>) => R) & {
-   NGX_SIMPLE_STATE_SELECTOR_TOKEN?: true;
+   [NGX_SIMPLE_STATE_SELECTOR_TOKEN]?: true;
 };
 
 export function createStateSelector<T extends {}, R>(
