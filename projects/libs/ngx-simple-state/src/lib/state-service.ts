@@ -15,7 +15,7 @@ export function StateService<InitialValueType extends {}>(
    };
 }
 
-export class StateServiceBase<InitialValueType extends {}> {
+class StateServiceBase<InitialValueType extends {}> {
    /**
     * State object with all fields as signals
     */
@@ -30,7 +30,6 @@ export class StateServiceBase<InitialValueType extends {}> {
    /**
     * Method for nexting internal destroyed subject.
     * Useful for services that may want to run some cleanup code when they are set to destroy.
-    * Clears all subscriptions to effects build with createActionEffect and createAsyncActionEffect methods
     */
    destroy(): void {
       this.destroyed.next();

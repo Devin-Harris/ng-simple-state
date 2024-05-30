@@ -3,12 +3,11 @@ import { Subject } from 'rxjs';
 import {
    NGX_SIMPLE_STATE_ACTION_TOKEN,
    StateAction,
+   WithStateActionToken,
    isStateAction,
 } from './state-action';
 import { StateSelector, isStateSelector } from './state-selector';
 
-// Helper type to check if P is undefined
-type IsUndefined<P> = P extends undefined ? true : false;
 // Helper type to exclude StateSelector from the check
 type IsStateActionOnly<T, K extends keyof T> = T[K] extends StateAction<
    any,
@@ -29,7 +28,7 @@ type StateSignalType<T> = {
    [x in keyof T]: T[x] extends StateSelector<T, infer R>
       ? Signal<R>
       : T[x] extends StateAction<T, infer P>
-      ? IsUndefined<P> extends true
+      ? P extends undefined
          ? () => StateAction<T, undefined>
          : (props: P) => StateAction<T, P>
       : WritableSignal<T[x]>;
@@ -59,19 +58,20 @@ export function stateSignal<InitialValueType extends {}>(
          // @ts-ignore
          state[k] = computed(() => value(state));
       } else if (isStateAction(value)) {
-         let subject: Subject<any> & {
-            NGX_SIMPLE_STATE_ACTION_TOKEN?: 'NGX_SIMPLE_STATE_ACTION_TOKEN';
-         } = new Subject<any>();
-         subject['NGX_SIMPLE_STATE_ACTION_TOKEN'] =
-            NGX_SIMPLE_STATE_ACTION_TOKEN;
+         const subject: WithStateActionToken<Subject<any>> = Object.assign(
+            new Subject<any>(),
+            {
+               [NGX_SIMPLE_STATE_ACTION_TOKEN]: true,
+            } as const
+         );
 
-         let fn: Function & {
-            NGX_SIMPLE_STATE_ACTION_TOKEN?: 'NGX_SIMPLE_STATE_ACTION_TOKEN';
-         } = (props?: any) => {
-            (value as Function)(state, props);
-            subject.next(props);
-         };
-         fn['NGX_SIMPLE_STATE_ACTION_TOKEN'] = NGX_SIMPLE_STATE_ACTION_TOKEN;
+         const fn: WithStateActionToken<Function> = Object.assign(
+            (props?: any) => {
+               (value as Function)(state, props);
+               subject.next(props);
+            },
+            { [NGX_SIMPLE_STATE_ACTION_TOKEN]: true } as const
+         );
 
          // @ts-ignore
          state[k] = fn;
@@ -119,7 +119,7 @@ export function stateSignalView<
    InitialValueType
 >(state: T) {
    const excludedKeys = new Set<keyof T>(['patch', 'view']);
-   const o: { [x: string]: T[keyof T] } = Object.create(null);
+   const o: InitialValueType = Object.create(null);
    const keys = Object.keys(state) as (keyof T)[];
    keys
       .filter((k) => !excludedKeys.has(k))
@@ -129,5 +129,5 @@ export function stateSignalView<
             o[k] = state[k]();
          }
       });
-   return o as InitialValueType;
+   return o;
 }
