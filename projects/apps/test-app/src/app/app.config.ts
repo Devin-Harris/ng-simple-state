@@ -1,5 +1,6 @@
 import { type ApplicationConfig } from '@angular/core';
 import { Routes, provideRouter } from '@angular/router';
+import { provideActions } from 'projects/libs/ngx-simple-state/src/public-api';
 import { AsyncLoadComponent } from './async-load-example/async-load-example.component';
 import { CounterExampleComponent } from './counter-example/counter-example.component';
 import { NonSingletonExampleComponent } from './non-singleton-example/non-singleton-example.component';
@@ -25,5 +26,5 @@ export const routes: Routes = [
 ];
 
 export const appConfig: ApplicationConfig = {
-   providers: [provideRouter(routes)],
+   providers: [provideRouter(routes), provideActions()],
 };

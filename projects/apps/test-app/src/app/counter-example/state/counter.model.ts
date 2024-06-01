@@ -21,6 +21,17 @@ export interface State {
    between5and10: StateSelector<State, boolean>;
 }
 
+const setCount = createStateAction<State, number>((state, count) =>
+   state.count.set(count)
+);
+const increment = createStateAction<State>((state) =>
+   state.count.update((c) => c + 1)
+);
+const decrement = createStateAction<State>((state) =>
+   state.count.update((c) => c - 1)
+);
+const reset = createStateAction<State>((state) => state.setCount(0));
+
 export const initialValue: State = {
    count: 0,
 
@@ -32,10 +43,10 @@ export const initialValue: State = {
     * Action. This is useful when you want to use rxjs or dependency injection to
     * trigger other events from a interaction.
     */
-   setCount: createStateAction((state, count) => state.count.set(count)),
-   increment: createStateAction((state) => state.count.update((c) => c + 1)),
-   decrement: createStateAction((state) => state.count.update((c) => c - 1)),
-   reset: createStateAction((state) => state.setCount(0)),
+   setCount,
+   increment,
+   decrement,
+   reset,
 
    /**
     * Selectors should be defined with the createStateSelector method.

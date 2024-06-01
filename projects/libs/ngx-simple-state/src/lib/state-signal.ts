@@ -1,9 +1,12 @@
 import { Signal, WritableSignal, computed, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import {
+   CreateStateAction,
    NGX_SIMPLE_STATE_ACTION_TOKEN,
+   NGX_SIMPLE_STATE_GLOBAL_ACTION_TOKEN,
    StateAction,
    WithStateActionToken,
+   globalAction,
    isStateAction,
 } from './state-action';
 import { StateSelector, isStateSelector } from './state-selector';
@@ -52,6 +55,7 @@ export function stateSignal<InitialValueType extends {}>(
       null
    ) as StateSignal<InitialValueType>;
    const keys = Object.keys(intialValue) as (keyof InitialValueType)[];
+
    keys.forEach((k: keyof InitialValueType) => {
       const value = intialValue[k];
       if (isStateSelector(value)) {
@@ -67,8 +71,19 @@ export function stateSignal<InitialValueType extends {}>(
 
          const fn: WithStateActionToken<Function> = Object.assign(
             (props?: any) => {
-               (value as Function)(state, props);
+               const castedValue = value as WithStateActionToken<
+                  CreateStateAction<InitialValueType, typeof props>
+               >;
+               castedValue(state, props);
                subject.next(props);
+
+               const ga = castedValue[NGX_SIMPLE_STATE_GLOBAL_ACTION_TOKEN];
+               if (ga?.isGlobalAction) {
+                  globalAction.next({
+                     type: `[${ga.source ?? 'Unknown'}] ${k as string}`,
+                     props,
+                  });
+               }
             },
             { [NGX_SIMPLE_STATE_ACTION_TOKEN]: true } as const
          );

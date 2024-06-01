@@ -25,5 +25,9 @@ export class AsyncLoadStateService extends StateService(initialValue) {
                return this.state.loadEntityFailure({ error });
             }
          });
+
+      this.actions.pipe(takeUntil(this.destroyed)).subscribe((action) => {
+         console.log(action);
+      });
    }
 }

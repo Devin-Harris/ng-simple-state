@@ -1,4 +1,6 @@
+import { inject } from '@angular/core';
 import { Subject } from 'rxjs';
+import { Actions } from './state-action';
 import { StateSignal, stateSignal } from './state-signal';
 
 type StateServiceFromInitialValueConstructor<T extends {}> = new (
@@ -20,6 +22,8 @@ class StateServiceBase<InitialValueType extends {}> {
     * State object with all fields as signals
     */
    readonly state: StateSignal<InitialValueType>;
+
+   readonly actions = inject(Actions);
 
    protected destroyed = new Subject<void>();
 
