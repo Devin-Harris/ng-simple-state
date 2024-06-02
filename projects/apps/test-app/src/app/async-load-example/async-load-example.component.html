@@ -3,10 +3,8 @@
 
    <div class="state-container">
       <label>State View</label>
-      <pre>{{ stateService.state.view() | json }}</pre>
+      <pre>{{ store.view() | json }}</pre>
    </div>
 
-   <button [disabled]="stateService.state.loading()" (click)="onLoad()">
-      Load Entity
-   </button>
+   <button [disabled]="store.loading()" (click)="onLoad()">Load Entity</button>
 </div>

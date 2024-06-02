@@ -4,5 +4,4 @@
 
 export * from './lib/state-action';
 export * from './lib/state-selector';
-export * from './lib/state-service';
 export * from './lib/state-signal';

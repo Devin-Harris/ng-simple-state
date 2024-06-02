@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { names } from '../state/names';
-import { AsyncLoadStateService } from './state/async-load-state.service';
+import { AsyncLoadStore } from './state/async-load.model';
 
 @Component({
    selector: 'ngx-simple-state-async-load-example',
@@ -14,10 +14,10 @@ import { AsyncLoadStateService } from './state/async-load-state.service';
    imports: [CommonModule],
 })
 export class AsyncLoadComponent {
-   readonly stateService = inject(AsyncLoadStateService);
+   readonly store = inject(AsyncLoadStore);
 
    onLoad() {
-      this.stateService.state.loadEntity({
+      this.store.loadEntity({
          id: Math.floor(Math.random() * (names.length - 1)),
       });
    }

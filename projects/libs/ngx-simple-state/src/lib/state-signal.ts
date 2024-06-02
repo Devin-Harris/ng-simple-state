@@ -1,4 +1,13 @@
-import { Signal, WritableSignal, computed, signal } from '@angular/core';
+import {
+   Injectable,
+   Injector,
+   Signal,
+   Type,
+   WritableSignal,
+   computed,
+   runInInjectionContext,
+   signal,
+} from '@angular/core';
 import { Subject } from 'rxjs';
 import {
    NGX_SIMPLE_STATE_ACTION_TOKEN,
@@ -45,73 +54,75 @@ export type StateSignal<T> = StateSignalType<T> & {
    view: Signal<T>;
 };
 
+export interface StateSignalConfig {
+   providedIn: Type<any> | 'root' | 'platform' | 'any' | null; // Pulled from angulars Injectable interface options
+}
+
 export function stateSignal<InitialValueType extends {}>(
-   intialValue: InitialValueType
-): StateSignal<InitialValueType> {
-   let state: StateSignal<InitialValueType> = Object.create(
-      null
-   ) as StateSignal<InitialValueType>;
+   intialValue: InitialValueType,
+   config?: StateSignalConfig
+): Type<StateSignal<InitialValueType>> {
    const keys = Object.keys(intialValue) as (keyof InitialValueType)[];
-   keys.forEach((k: keyof InitialValueType) => {
-      const value = intialValue[k];
-      if (isStateSelector(value)) {
-         // @ts-ignore
-         state[k] = computed(() => value(state));
-      } else if (isStateAction(value)) {
-         const subject: WithStateActionToken<Subject<any>> = Object.assign(
-            new Subject<any>(),
-            {
-               [NGX_SIMPLE_STATE_ACTION_TOKEN]: true,
-            } as const
-         );
 
-         const fn: WithStateActionToken<Function> = Object.assign(
-            (props?: any) => {
-               (value as Function)(state, props);
-               subject.next(props);
-            },
-            { [NGX_SIMPLE_STATE_ACTION_TOKEN]: true } as const
-         );
-
-         // @ts-ignore
-         state[k] = fn;
-         // @ts-ignore
-         state[`$${k}`] = subject;
-      } else {
-         // @ts-ignore
-         state[k] = signal(value);
-      }
-   });
-
-   if (state === null) {
+   if (!intialValue || keys.length === 0) {
       throw new Error('Must provide an inital object value to stateSignal');
    }
 
-   state.patch = (value: StateSignalPatchParam<InitialValueType>) => {
-      if (state) {
-         const keys = Object.keys(
-            value
-         ) as (keyof StateSignalPatchParam<InitialValueType>)[];
+   @Injectable({ providedIn: config?.providedIn || null })
+   class SignalStore {
+      constructor(injector: Injector) {
          for (const k of keys) {
-            const v = value[k] as InitialValueType[keyof InitialValueType];
+            const value = intialValue[k];
+            if (isStateSelector(value)) {
+               (this as any)[k] = computed(() => value(this as any));
+            } else if (isStateAction(value)) {
+               const subject: WithStateActionToken<Subject<any>> =
+                  Object.assign(new Subject<any>(), {
+                     [NGX_SIMPLE_STATE_ACTION_TOKEN]: true,
+                  } as const);
 
-            if (isStateSelector(v)) {
-               throw new Error('Patching on selector values is not allowed');
-            }
-            if (isStateAction(v)) {
-               throw new Error('Patching on action values is not allowed');
-            }
+               const fn: WithStateActionToken<Function> = Object.assign(
+                  (props?: any) => {
+                     runInInjectionContext(injector, () => {
+                        (value as Function)(this, props);
+                     });
+                     subject.next(props);
+                  },
+                  { [NGX_SIMPLE_STATE_ACTION_TOKEN]: true } as const
+               );
 
-            (state[k] as WritableSignal<typeof v>).set(v);
+               (this as any)[k] = fn;
+               (this as any)[`$${k as string}`] = subject;
+            } else {
+               (this as any)[k] = signal(value);
+            }
          }
+
+         (this as any).patch = (
+            value: StateSignalPatchParam<InitialValueType>
+         ) => {
+            const keys = Object.keys(
+               value
+            ) as (keyof StateSignalPatchParam<InitialValueType>)[];
+            for (const k of keys) {
+               const v = value[k] as InitialValueType[keyof InitialValueType];
+
+               if (isStateSelector(v)) {
+                  throw new Error('Patching on selector values is not allowed');
+               }
+               if (isStateAction(v)) {
+                  throw new Error('Patching on action values is not allowed');
+               }
+
+               ((this as any)[k] as WritableSignal<typeof v>).set(v);
+            }
+         };
+
+         (this as any).view = computed(() => stateSignalView(this as any));
       }
-   };
+   }
 
-   state.view = computed(() => stateSignalView(state));
-
-   Object.freeze(state);
-
-   return state;
+   return SignalStore as Type<StateSignal<InitialValueType>>;
 }
 
 export function stateSignalView<

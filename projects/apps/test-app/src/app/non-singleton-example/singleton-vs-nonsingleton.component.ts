@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { stateSignal } from 'projects/libs/ngx-simple-state/src/public-api';
-import { NonSingletonCounterStateService } from './state/non-singleton-counter-state.service';
-import { SingletonCounterStateService } from './state/singleton-counter-state.service';
-import { initialValue } from './state/singleton-counter.model';
+import {
+   NonSingletonCounterStore,
+   SingletonCounterStore,
+} from './state/singleton-counter.model';
 
 @Component({
    selector: 'ngx-simple-state-singleton-vs-nonsingleton',
@@ -14,16 +14,14 @@ import { initialValue } from './state/singleton-counter.model';
    ],
    standalone: true,
    imports: [CommonModule],
-   providers: [NonSingletonCounterStateService],
+   providers: [NonSingletonCounterStore],
 })
 export class SingletonVsNonSingletonComponent {
    @Input() id: number = 0;
 
    @Output() removeInstance = new EventEmitter<void>();
 
-   readonly singletonService = inject(SingletonCounterStateService);
+   readonly singletonStore = inject(SingletonCounterStore);
 
-   readonly nonSingletonService = inject(NonSingletonCounterStateService);
-
-   readonly componentState = stateSignal(initialValue);
+   readonly nonSingletonStore = inject(NonSingletonCounterStore);
 }

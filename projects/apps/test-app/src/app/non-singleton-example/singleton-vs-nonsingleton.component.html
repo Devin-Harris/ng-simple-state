@@ -9,26 +9,17 @@
    <div class="state-views">
       <div class="state-container">
          <label>Singleton Service State View</label>
-         <pre>{{ singletonService.state.view() | json }}</pre>
-         <button (click)="singletonService.state.increment()">
+         <pre>{{ singletonStore.view() | json }}</pre>
+         <button (click)="singletonStore.increment()">
             Increment Singleton Service
          </button>
       </div>
 
       <div class="state-container">
          <label>Non Singleton Service State View</label>
-         <pre>{{ nonSingletonService.state.view() | json }}</pre>
+         <pre>{{ nonSingletonStore.view() | json }}</pre>
 
-         <button (click)="nonSingletonService.state.increment()">
-            Increment NonSingleton Service
-         </button>
-      </div>
-
-      <div class="state-container">
-         <label>Non Singleton Component State View</label>
-         <pre>{{ componentState.view() | json }}</pre>
-
-         <button (click)="componentState.increment()">
+         <button (click)="nonSingletonStore.increment()">
             Increment NonSingleton Service
          </button>
       </div>
