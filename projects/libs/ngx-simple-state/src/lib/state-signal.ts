@@ -71,10 +71,13 @@ export function stateSignal<InitialValueType extends {}>(
    @Injectable({ providedIn: config?.providedIn || null })
    class SignalStore {
       constructor(injector: Injector) {
+         // Casting `this` object to any so proper fields can be attached without ts errors
+         const store = this as any;
+
          for (const k of keys) {
             const value = intialValue[k];
             if (isStateSelector(value)) {
-               (this as any)[k] = computed(() => value(this as any));
+               store[k] = computed(() => value(store));
             } else if (isStateAction(value)) {
                const subject: WithStateActionToken<Subject<any>> =
                   Object.assign(new Subject<any>(), {
@@ -91,16 +94,14 @@ export function stateSignal<InitialValueType extends {}>(
                   { [NGX_SIMPLE_STATE_ACTION_TOKEN]: true } as const
                );
 
-               (this as any)[k] = fn;
-               (this as any)[`$${k as string}`] = subject;
+               store[k] = fn;
+               store[`$${k as string}`] = subject;
             } else {
-               (this as any)[k] = signal(value);
+               store[k] = signal(value);
             }
          }
 
-         (this as any).patch = (
-            value: StateSignalPatchParam<InitialValueType>
-         ) => {
+         store.patch = (value: StateSignalPatchParam<InitialValueType>) => {
             const keys = Object.keys(
                value
             ) as (keyof StateSignalPatchParam<InitialValueType>)[];
@@ -114,11 +115,11 @@ export function stateSignal<InitialValueType extends {}>(
                   throw new Error('Patching on action values is not allowed');
                }
 
-               ((this as any)[k] as WritableSignal<typeof v>).set(v);
+               (store[k] as WritableSignal<typeof v>).set(v);
             }
          };
 
-         (this as any).view = computed(() => stateSignalView(this as any));
+         store.view = computed(() => stateSignalView(store));
       }
    }
 
