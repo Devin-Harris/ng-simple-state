@@ -10,24 +10,21 @@ import {
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import {
-   NGX_SIMPLE_STATE_ACTION_TOKEN,
-   StateAction,
-   WithStateActionToken,
-   isStateAction,
-} from './state-action';
-import { StateSelector, isStateSelector } from './state-selector';
+   Action,
+   NGX_SIMPLE_ACTION_TOKEN,
+   WithActionToken,
+   isAction,
+} from './action';
+import { Selector, isSelector } from './selector';
 
-type IsStateActionOnly<T, K extends keyof T> = T[K] extends StateAction<
-   any,
-   any
->
-   ? T[K] extends StateSelector<any, any>
+type IsActionOnly<T, K extends keyof T> = T[K] extends Action<any, any>
+   ? T[K] extends Selector<any, any>
       ? false
       : true
    : false;
 
 type ExcludeSelectorsAndActions<T> = {
-   [K in keyof T]: T[K] extends StateSelector<any, any> | StateAction<any, any>
+   [K in keyof T]: T[K] extends Selector<any, any> | Action<any, any>
       ? never
       : K;
 }[keyof T];
@@ -40,54 +37,54 @@ type ExcludeActionSubject<T> = {
       : x;
 }[keyof T];
 
-type ExcludeStateSignalHelperMethods<T> = {
-   [x in keyof T]: x extends keyof StateSignalHelperMethods<T> ? never : x;
+type ExcludeStoreSignalHelperMethods<T> = {
+   [x in keyof T]: x extends keyof StoreSignalHelperMethods<T> ? never : x;
 }[keyof T];
 
-type StateSignalType<T> = {
-   [x in ExcludeStateSignalHelperMethods<
+type StoreSignalType<T> = {
+   [x in ExcludeStoreSignalHelperMethods<
       Pick<T, ExcludeActionSubject<T>>
-   >]: T[x] extends StateSelector<T, infer R>
+   >]: T[x] extends Selector<T, infer R>
       ? Signal<R>
-      : T[x] extends StateAction<T, infer P>
+      : T[x] extends Action<T, infer P>
       ? P extends undefined
-         ? () => StateAction<T, undefined>
-         : (props: P) => StateAction<T, P>
+         ? () => Action<T, undefined>
+         : (props: P) => Action<T, P>
       : WritableSignal<T[x]>;
 } & {
-   [x in keyof T as IsStateActionOnly<T, x> extends true
+   [x in keyof T as IsActionOnly<T, x> extends true
       ? `$${string & x}`
-      : never]: T[x] extends StateAction<T, infer P> ? Subject<P> : never;
+      : never]: T[x] extends Action<T, infer P> ? Subject<P> : never;
 };
 
-type StateSignalPatchParam<T> = Partial<Pick<T, ExcludeSelectorsAndActions<T>>>;
+type StoreSignalPatchParam<T> = Partial<Pick<T, ExcludeSelectorsAndActions<T>>>;
 
-type StateSignalHelperMethods<T> = {
-   patch: (value: StateSignalPatchParam<T>) => void;
+type StoreSignalHelperMethods<T> = {
+   patch: (value: StoreSignalPatchParam<T>) => void;
    view: Signal<T>;
 };
 
-export type StateSignal<T> = StateSignalType<T> & StateSignalHelperMethods<T>;
+export type StoreSignal<T> = StoreSignalType<T> & StoreSignalHelperMethods<T>;
 
-export interface StateSignalConfig {
+export interface StoreSignalConfig {
    providedIn: Type<any> | 'root' | 'platform' | 'any' | null; // Pulled from angulars Injectable interface options
 }
 
-export type StateSignalInput<T> = Pick<
+export type StoreSignalInput<T> = Pick<
    Pick<T, ExcludeActionSubject<T>>,
-   ExcludeStateSignalHelperMethods<Pick<T, ExcludeActionSubject<T>>>
+   ExcludeStoreSignalHelperMethods<Pick<T, ExcludeActionSubject<T>>>
 >;
 
-export function stateSignal<InitialValueType extends {}>(
-   intialValue: StateSignalInput<InitialValueType>,
-   config?: StateSignalConfig
-): Type<StateSignal<InitialValueType>> {
+export function storeSignal<InitialValueType extends {}>(
+   intialValue: StoreSignalInput<InitialValueType>,
+   config?: StoreSignalConfig
+): Type<StoreSignal<InitialValueType>> {
    const keys = Object.keys(
       intialValue
-   ) as (keyof StateSignalInput<InitialValueType>)[];
+   ) as (keyof StoreSignalInput<InitialValueType>)[];
 
    if (!intialValue || keys.length === 0) {
-      throw new Error('Must provide an inital object value to stateSignal');
+      throw new Error('Must provide an inital object value to storeSignal');
    }
 
    @Injectable({ providedIn: config?.providedIn || null })
@@ -103,33 +100,35 @@ export function stateSignal<InitialValueType extends {}>(
                throw new Error(
                   `Key \`${
                      k as string
-                  }\` is trying to be set multiple times within this stateSignal`
+                  }\` is trying to be set multiple times within this storeSignal`
                );
             }
 
-            if (isStateSelector(value)) {
+            if (isSelector(value)) {
                store[k] = computed(() => value(store));
-            } else if (isStateAction(value)) {
-               const subject: WithStateActionToken<Subject<any>> =
-                  Object.assign(new Subject<any>(), {
-                     [NGX_SIMPLE_STATE_ACTION_TOKEN]: true,
-                  } as const);
+            } else if (isAction(value)) {
+               const subject: WithActionToken<Subject<any>> = Object.assign(
+                  new Subject<any>(),
+                  {
+                     [NGX_SIMPLE_ACTION_TOKEN]: true,
+                  } as const
+               );
 
-               const fn: WithStateActionToken<Function> = Object.assign(
+               const fn: WithActionToken<Function> = Object.assign(
                   (props?: any) => {
                      runInInjectionContext(injector, () => {
                         (value as Function)(this, props);
                      });
                      subject.next(props);
                   },
-                  { [NGX_SIMPLE_STATE_ACTION_TOKEN]: true } as const
+                  { [NGX_SIMPLE_ACTION_TOKEN]: true } as const
                );
 
                store[k] = fn;
                const actionSubjectString = `$${k as string}`;
                if (store[actionSubjectString]) {
                   throw new Error(
-                     `Key \`${actionSubjectString}\` is trying to be set multiple times within this stateSignal`
+                     `Key \`${actionSubjectString}\` is trying to be set multiple times within this storeSignal`
                   );
                }
                store[actionSubjectString] = subject;
@@ -140,20 +139,20 @@ export function stateSignal<InitialValueType extends {}>(
 
          if (store['patch']) {
             throw new Error(
-               `Key \`patch\` is trying to be set multiple times within this stateSignal`
+               `Key \`patch\` is trying to be set multiple times within this storeSignal`
             );
          }
-         store.patch = (value: StateSignalPatchParam<InitialValueType>) => {
+         store.patch = (value: StoreSignalPatchParam<InitialValueType>) => {
             const keys = Object.keys(
                value
-            ) as (keyof StateSignalPatchParam<InitialValueType>)[];
+            ) as (keyof StoreSignalPatchParam<InitialValueType>)[];
             for (const k of keys) {
                const v = value[k] as InitialValueType[keyof InitialValueType];
 
-               if (isStateSelector(v)) {
+               if (isSelector(v)) {
                   throw new Error('Patching on selector values is not allowed');
                }
-               if (isStateAction(v)) {
+               if (isAction(v)) {
                   throw new Error('Patching on action values is not allowed');
                }
 
@@ -162,18 +161,18 @@ export function stateSignal<InitialValueType extends {}>(
          };
          if (store['view']) {
             throw new Error(
-               `Key \`view\` is trying to be set multiple times within this stateSignal`
+               `Key \`view\` is trying to be set multiple times within this storeSignal`
             );
          }
-         store.view = computed(() => stateSignalView(store));
+         store.view = computed(() => storeSignalView(store));
       }
    }
 
-   return SignalStore as Type<StateSignal<InitialValueType>>;
+   return SignalStore as Type<StoreSignal<InitialValueType>>;
 }
 
-export function stateSignalView<
-   T extends StateSignal<InitialValueType>,
+export function storeSignalView<
+   T extends StoreSignal<InitialValueType>,
    InitialValueType
 >(state: T) {
    const excludedKeys = new Set<keyof T>(['patch', 'view']);
@@ -182,7 +181,7 @@ export function stateSignalView<
    keys
       .filter((k) => !excludedKeys.has(k))
       .forEach((k) => {
-         if (!isStateAction(state[k])) {
+         if (!isAction(state[k])) {
             // @ts-ignore
             o[k] = state[k]();
          }

@@ -1,13 +1,13 @@
 import { inject } from '@angular/core';
 import {
-   StateAction,
-   createStateAction,
-} from 'projects/libs/ngx-simple-state/src/lib/state-action';
+   Action,
+   createAction,
+} from 'projects/libs/ngx-simple-state/src/lib/action';
 import {
-   StateSelector,
-   createStateSelector,
-} from 'projects/libs/ngx-simple-state/src/lib/state-selector';
-import { stateSignal } from 'projects/libs/ngx-simple-state/src/public-api';
+   Selector,
+   createSelector,
+} from 'projects/libs/ngx-simple-state/src/lib/selector';
+import { storeSignal } from 'projects/libs/ngx-simple-state/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallState,
@@ -21,18 +21,15 @@ export interface State {
    entityId: number | null;
    callState: CallState;
 
-   loadEntity: StateAction<State, { id: number }>;
-   loadEntitySuccess: StateAction<
-      State,
-      { entityName: string; entityId: number }
-   >;
-   loadEntityFailure: StateAction<State, { error: Error }>;
+   loadEntity: Action<State, { id: number }>;
+   loadEntitySuccess: Action<State, { entityName: string; entityId: number }>;
+   loadEntityFailure: Action<State, { error: Error }>;
 
-   loading: StateSelector<State, boolean>;
-   error: StateSelector<State, Error | null>;
+   loading: Selector<State, boolean>;
+   error: Selector<State, Error | null>;
 }
 
-export const AsyncLoadStore = stateSignal<State>(
+export const AsyncLoadStore = storeSignal<State>(
    {
       // Root State
       callState: LoadingState.Init,
@@ -47,7 +44,7 @@ export const AsyncLoadStore = stateSignal<State>(
        * denote (state, ...rest of injection properties...) => ... but for actions with
        * props defined it should read (state, props, ...rest of injection properties...) => ...
        */
-      loadEntity: createStateAction(
+      loadEntity: createAction(
          async (state, props, apiService = inject(AsyncLoadApiService)) => {
             state.callState.set(LoadingState.Loading);
             try {
@@ -58,18 +55,18 @@ export const AsyncLoadStore = stateSignal<State>(
             }
          }
       ),
-      loadEntitySuccess: createStateAction((state, props) =>
+      loadEntitySuccess: createAction((state, props) =>
          state.patch({ ...props, callState: LoadingState.Loaded })
       ),
-      loadEntityFailure: createStateAction((state, props) =>
+      loadEntityFailure: createAction((state, props) =>
          state.patch({ callState: { error: props.error } })
       ),
 
       // Selectors
-      loading: createStateSelector(
+      loading: createSelector(
          (state) => state.callState() === LoadingState.Loading
       ),
-      error: createStateSelector((state) => {
+      error: createSelector((state) => {
          const callState = state.callState();
          return isErrorState(callState) ? callState.error : null;
       }),

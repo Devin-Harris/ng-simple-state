@@ -1,54 +1,58 @@
 import {
-   StateAction,
-   createStateAction,
-} from 'projects/libs/ngx-simple-state/src/lib/state-action';
+   Action,
+   createAction,
+} from 'projects/libs/ngx-simple-state/src/lib/action';
 import {
-   StateSelector,
-   createStateSelector,
-} from 'projects/libs/ngx-simple-state/src/lib/state-selector';
-import { stateSignal } from 'projects/libs/ngx-simple-state/src/lib/state-signal';
+   Selector,
+   createSelector,
+} from 'projects/libs/ngx-simple-state/src/lib/selector';
+import {
+   StoreSignalInput,
+   storeSignal,
+} from 'projects/libs/ngx-simple-state/src/lib/store-signal';
 
 export interface State {
    count: number;
 
-   setCount: StateAction<State, number>;
-   increment: StateAction<State>;
-   decrement: StateAction<State>;
-   reset: StateAction<State>;
+   setCount: Action<State, number>;
+   increment: Action<State>;
+   decrement: Action<State>;
+   reset: Action<State>;
 
-   lessThan5: StateSelector<State, boolean>;
-   lessThan10: StateSelector<State, boolean>;
-   between5and10: StateSelector<State, boolean>;
+   lessThan5: Selector<State, boolean>;
+   lessThan10: Selector<State, boolean>;
+   between5and10: Selector<State, boolean>;
 }
 
-export const CounterStore = stateSignal<State>(
-   {
-      count: 0,
+const counterStoreInitialValue: StoreSignalInput<State> = {
+   count: 0,
 
-      /**
-       * Actions should be defined with the createStateAction method.
-       * This method puts a special token on the function objects which is used
-       * when building the stateSignal to automatically impose the state objects when calling
-       * the Actions. It also creates another field with a $ prefix which is a subject of the given
-       * Action. This is useful when you want to use rxjs or dependency injection to
-       * trigger other events from a interaction.
-       */
-      setCount: createStateAction((state, count) => state.count.set(count)),
-      increment: createStateAction((state) => state.count.update((c) => c + 1)),
-      decrement: createStateAction((state) => state.count.update((c) => c - 1)),
-      reset: createStateAction((state) => state.setCount(0)),
+   /**
+    * Actions should be defined with the createAction method.
+    * This method puts a special token on the function objects which is used
+    * when building the storeSignal to automatically impose the state objects when calling
+    * the Actions. It also creates another field with a $ prefix which is a subject of the given
+    * Action. This is useful when you want to use rxjs or dependency injection to
+    * trigger other events from a interaction.
+    */
+   setCount: createAction((state, count) => state.count.set(count)),
+   increment: createAction((state) => state.count.update((c) => c + 1)),
+   decrement: createAction((state) => state.count.update((c) => c - 1)),
+   reset: createAction((state) => state.setCount(0)),
 
-      /**
-       * Selectors should be defined with the createStateSelector method.
-       * This method puts a special token on the function objects which is used
-       * when building the stateSignal to force the selectors to be readonly signals
-       * instead of writable ones.
-       */
-      lessThan5: createStateSelector((state) => state.count() < 5),
-      lessThan10: createStateSelector((state) => state.count() < 10),
-      between5and10: createStateSelector(
-         (state) => !state.lessThan5() && state.lessThan10()
-      ),
-   },
-   { providedIn: 'root' }
-);
+   /**
+    * Selectors should be defined with the createSelector method.
+    * This method puts a special token on the function objects which is used
+    * when building the storeSignal to force the selectors to be readonly signals
+    * instead of writable ones.
+    */
+   lessThan5: createSelector((state) => state.count() < 5),
+   lessThan10: createSelector((state) => state.count() < 10),
+   between5and10: createSelector(
+      (state) => !state.lessThan5() && state.lessThan10()
+   ),
+};
+
+export const CounterStore = storeSignal(counterStoreInitialValue, {
+   providedIn: 'root',
+});
