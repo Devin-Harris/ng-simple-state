@@ -14,9 +14,15 @@ export const counterStoreInitialValue: State = {
    increment: createStateAction((state) => state.count.update((c) => c + 1)),
 };
 
-export const SingletonCounterStore = stateSignal(counterStoreInitialValue, {
-   providedIn: 'root',
-});
-export const NonSingletonCounterStore = stateSignal(counterStoreInitialValue, {
-   providedIn: 'root',
-});
+export const SingletonCounterStore = stateSignal<State>(
+   counterStoreInitialValue,
+   {
+      providedIn: 'root',
+   }
+);
+export const NonSingletonCounterStore = stateSignal<State>(
+   counterStoreInitialValue,
+   {
+      providedIn: 'root',
+   }
+);

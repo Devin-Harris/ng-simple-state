@@ -17,7 +17,6 @@ import {
 } from './state-action';
 import { StateSelector, isStateSelector } from './state-selector';
 
-// Helper type to exclude StateSelector from the check
 type IsStateActionOnly<T, K extends keyof T> = T[K] extends StateAction<
    any,
    any
@@ -26,15 +25,29 @@ type IsStateActionOnly<T, K extends keyof T> = T[K] extends StateAction<
       ? false
       : true
    : false;
-// Helper type to exclude StateSelector and StateAction
+
 type ExcludeSelectorsAndActions<T> = {
    [K in keyof T]: T[K] extends StateSelector<any, any> | StateAction<any, any>
       ? never
       : K;
 }[keyof T];
 
+type ExcludeActionSubject<T> = {
+   [x in keyof T]: x extends `$${infer Suffix}`
+      ? Suffix extends keyof T
+         ? never
+         : x
+      : x;
+}[keyof T];
+
+type ExcludeStateSignalHelperMethods<T> = {
+   [x in keyof T]: x extends keyof StateSignalHelperMethods<T> ? never : x;
+}[keyof T];
+
 type StateSignalType<T> = {
-   [x in keyof T]: T[x] extends StateSelector<T, infer R>
+   [x in ExcludeStateSignalHelperMethods<
+      Pick<T, ExcludeActionSubject<T>>
+   >]: T[x] extends StateSelector<T, infer R>
       ? Signal<R>
       : T[x] extends StateAction<T, infer P>
       ? P extends undefined
@@ -49,20 +62,29 @@ type StateSignalType<T> = {
 
 type StateSignalPatchParam<T> = Partial<Pick<T, ExcludeSelectorsAndActions<T>>>;
 
-export type StateSignal<T> = StateSignalType<T> & {
+type StateSignalHelperMethods<T> = {
    patch: (value: StateSignalPatchParam<T>) => void;
    view: Signal<T>;
 };
+
+export type StateSignal<T> = StateSignalType<T> & StateSignalHelperMethods<T>;
 
 export interface StateSignalConfig {
    providedIn: Type<any> | 'root' | 'platform' | 'any' | null; // Pulled from angulars Injectable interface options
 }
 
+export type StateSignalInput<T> = Pick<
+   Pick<T, ExcludeActionSubject<T>>,
+   ExcludeStateSignalHelperMethods<Pick<T, ExcludeActionSubject<T>>>
+>;
+
 export function stateSignal<InitialValueType extends {}>(
-   intialValue: InitialValueType,
+   intialValue: StateSignalInput<InitialValueType>,
    config?: StateSignalConfig
 ): Type<StateSignal<InitialValueType>> {
-   const keys = Object.keys(intialValue) as (keyof InitialValueType)[];
+   const keys = Object.keys(
+      intialValue
+   ) as (keyof StateSignalInput<InitialValueType>)[];
 
    if (!intialValue || keys.length === 0) {
       throw new Error('Must provide an inital object value to stateSignal');
@@ -76,6 +98,15 @@ export function stateSignal<InitialValueType extends {}>(
 
          for (const k of keys) {
             const value = intialValue[k];
+
+            if (store[k]) {
+               throw new Error(
+                  `Key \`${
+                     k as string
+                  }\` is trying to be set multiple times within this stateSignal`
+               );
+            }
+
             if (isStateSelector(value)) {
                store[k] = computed(() => value(store));
             } else if (isStateAction(value)) {
@@ -95,12 +126,23 @@ export function stateSignal<InitialValueType extends {}>(
                );
 
                store[k] = fn;
-               store[`$${k as string}`] = subject;
+               const actionSubjectString = `$${k as string}`;
+               if (store[actionSubjectString]) {
+                  throw new Error(
+                     `Key \`${actionSubjectString}\` is trying to be set multiple times within this stateSignal`
+                  );
+               }
+               store[actionSubjectString] = subject;
             } else {
                store[k] = signal(value);
             }
          }
 
+         if (store['patch']) {
+            throw new Error(
+               `Key \`patch\` is trying to be set multiple times within this stateSignal`
+            );
+         }
          store.patch = (value: StateSignalPatchParam<InitialValueType>) => {
             const keys = Object.keys(
                value
@@ -118,7 +160,11 @@ export function stateSignal<InitialValueType extends {}>(
                (store[k] as WritableSignal<typeof v>).set(v);
             }
          };
-
+         if (store['view']) {
+            throw new Error(
+               `Key \`view\` is trying to be set multiple times within this stateSignal`
+            );
+         }
          store.view = computed(() => stateSignalView(store));
       }
    }

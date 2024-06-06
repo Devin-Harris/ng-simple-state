@@ -19,7 +19,7 @@ type CreateStateAction<T, P> = (P extends undefined
    NGX_SIMPLE_STATE_ACTION_TOKEN?: true;
 };
 
-export function createStateAction<T extends {}, P>(
+export function createStateAction<T extends {}, P = undefined>(
    fn: CreateStateAction<T, P>
 ): WithStateActionToken<CreateStateAction<T, P>> {
    Object.assign(fn, { [NGX_SIMPLE_STATE_ACTION_TOKEN]: true });

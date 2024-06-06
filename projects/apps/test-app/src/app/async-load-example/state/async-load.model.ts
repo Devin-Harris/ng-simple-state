@@ -40,10 +40,13 @@ export const AsyncLoadStore = stateSignal<State>(
       entityId: null,
 
       // Actions
-      // Notice how you can utilize dependency injection in the state action callback
-      // function parameters. These items should always be after the second parameter
-      // so for actions that do not have props defined the signature should still
-      // denote (state, _, ...rest of injection properties...) => ...
+      /**
+       * Notice how you can utilize dependency injection in the state action callback
+       * function parameters. These items should always be after the required parameters
+       * so for actions that do not have props defined the signature should still
+       * denote (state, ...rest of injection properties...) => ... but for actions with
+       * props defined it should read (state, props, ...rest of injection properties...) => ...
+       */
       loadEntity: createStateAction(
          async (state, props, apiService = inject(AsyncLoadApiService)) => {
             state.callState.set(LoadingState.Loading);
