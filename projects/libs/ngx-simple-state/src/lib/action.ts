@@ -1,6 +1,8 @@
 import { StoreSignal } from './store-signal';
 
-export type Action<InitialValueType, Props = undefined> = (
+export type Action<Props = undefined, T = {}> = InternalAction<T, Props>;
+
+export type InternalAction<InitialValueType, Props = undefined> = (
    state: StoreSignal<InitialValueType>,
    props: Props
 ) => void;

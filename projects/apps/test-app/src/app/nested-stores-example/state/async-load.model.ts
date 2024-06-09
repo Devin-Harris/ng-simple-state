@@ -4,29 +4,33 @@ import {
    createAction,
 } from 'projects/libs/ngx-simple-state/src/lib/action';
 import {
+   Store,
    StoreSlice,
    createStoreSlice,
    store,
 } from 'projects/libs/ngx-simple-state/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
-   CallStateStore,
+   CallStateStoreType,
    LoadingState,
    callStateStoreInitialValue,
 } from './call-state.model';
 
-export interface State {
-   callStateStore: StoreSlice<CallStateStore>;
+export type NestedAsyncStoreType = Store<{
+   // Store slices
+   callStateStore: StoreSlice<CallStateStoreType>;
 
+   // Root State
    entityName: string | null;
    entityId: number | null;
 
-   loadEntity: Action<State, { id: number }>;
-   loadEntitySuccess: Action<State, { entityName: string; entityId: number }>;
-   loadEntityFailure: Action<State, { error: Error }>;
-}
+   // Actions
+   loadEntity: Action<{ id: number }>;
+   loadEntitySuccess: Action<{ entityName: string; entityId: number }>;
+   loadEntityFailure: Action<{ error: Error }>;
+}>;
 
-export const AsyncLoadWithCallStateStore = store<State>(
+export const AsyncLoadWithCallStateStore = store<NestedAsyncStoreType>(
    {
       // Store slices
       callStateStore: createStoreSlice(callStateStoreInitialValue),

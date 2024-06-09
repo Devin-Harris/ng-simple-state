@@ -1,6 +1,7 @@
 import {
    Action,
    Selector,
+   Store,
    StoreSignalInput,
    createAction,
    createSelector,
@@ -20,35 +21,36 @@ export function isErrorState(callstate: CallState): callstate is ErrorState {
    return !!Object.hasOwn(callstate as object, 'error');
 }
 
-export interface CallStateStore {
+export type CallStateStoreType = Store<{
    callState: CallState;
 
-   setLoaded: Action<CallStateStore>;
-   setLoading: Action<CallStateStore>;
-   setError: Action<CallStateStore, { error: Error }>;
+   setLoaded: Action;
+   setLoading: Action;
+   setError: Action<{ error: Error }>;
 
-   loading: Selector<CallStateStore, boolean>;
-   error: Selector<CallStateStore, Error | null>;
-}
+   loading: Selector<boolean>;
+   error: Selector<Error | null>;
+}>;
 
-export const callStateStoreInitialValue: StoreSignalInput<CallStateStore> = {
-   callState: LoadingState.Init,
+export const callStateStoreInitialValue: StoreSignalInput<CallStateStoreType> =
+   {
+      callState: LoadingState.Init,
 
-   setLoaded: createAction((state) => {
-      state.patch({ callState: LoadingState.Loaded });
-   }),
-   setLoading: createAction((state) => {
-      state.patch({ callState: LoadingState.Loading });
-   }),
-   setError: createAction((state, props) => {
-      state.patch({ callState: { error: props.error } });
-   }),
+      setLoaded: createAction((state) => {
+         state.patch({ callState: LoadingState.Loaded });
+      }),
+      setLoading: createAction((state) => {
+         state.patch({ callState: LoadingState.Loading });
+      }),
+      setError: createAction((state, props) => {
+         state.patch({ callState: { error: props.error } });
+      }),
 
-   loading: createSelector(
-      (state) => state.callState() === LoadingState.Loading
-   ),
-   error: createSelector((state) => {
-      const callState = state.callState();
-      return isErrorState(callState) ? callState.error : null;
-   }),
-};
+      loading: createSelector(
+         (state) => state.callState() === LoadingState.Loading
+      ),
+      error: createSelector((state) => {
+         const callState = state.callState();
+         return isErrorState(callState) ? callState.error : null;
+      }),
+   };

@@ -7,7 +7,7 @@ import {
    Selector,
    createSelector,
 } from 'projects/libs/ngx-simple-state/src/lib/selector';
-import { store } from 'projects/libs/ngx-simple-state/src/public-api';
+import { Store, store } from 'projects/libs/ngx-simple-state/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallState,
@@ -16,20 +16,20 @@ import {
    isErrorState,
 } from './async-load-helper.model';
 
-export interface State {
+export type AsyncStoreType = Store<{
    entityName: string | null;
    entityId: number | null;
    callState: CallState;
 
-   loadEntity: Action<State, { id: number }>;
-   loadEntitySuccess: Action<State, { entityName: string; entityId: number }>;
-   loadEntityFailure: Action<State, { error: Error }>;
+   loadEntity: Action<{ id: number }>;
+   loadEntitySuccess: Action<{ entityName: string; entityId: number }>;
+   loadEntityFailure: Action<{ error: Error }>;
 
-   loading: Selector<State, boolean>;
-   error: Selector<State, Error | null>;
-}
+   loading: Selector<boolean>;
+   error: Selector<Error | null>;
+}>;
 
-export const AsyncLoadStore = store<State>(
+export const AsyncLoadStore = store<AsyncStoreType>(
    {
       // Root State
       callState: LoadingState.Init,

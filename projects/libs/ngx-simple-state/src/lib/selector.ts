@@ -1,6 +1,11 @@
 import { StoreSignal } from './store-signal';
 
-export type Selector<InitialValueType, ReturnType> = (
+export type Selector<ReturnType, InitialValueType = {}> = InternalSelector<
+   InitialValueType,
+   ReturnType
+>;
+
+export type InternalSelector<InitialValueType, ReturnType> = (
    state: StoreSignal<InitialValueType>
 ) => ReturnType;
 

@@ -10,23 +10,23 @@ import {
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import {
-   Action,
+   InternalAction,
    NGX_SIMPLE_ACTION_TOKEN,
    WithActionToken,
    isAction,
 } from './action';
-import { Selector, isSelector } from './selector';
+import { InternalSelector, isSelector } from './selector';
 
-type IsActionOnly<T, K extends keyof T> = T[K] extends Action<any, any>
-   ? T[K] extends Selector<any, any>
+type IsActionOnly<T, K extends keyof T> = T[K] extends InternalAction<any, any>
+   ? T[K] extends InternalSelector<any, any>
       ? false
       : true
    : false;
 
 type ExcludeSelectorsAndActionsAndSlices<T> = {
    [K in keyof T]: T[K] extends
-      | Selector<any, any>
-      | Action<any, any>
+      | InternalSelector<any, any>
+      | InternalAction<any, any>
       | WithActionToken<Subject<any>>
       | StoreSlice<T[K]>
       ? never
@@ -35,8 +35,8 @@ type ExcludeSelectorsAndActionsAndSlices<T> = {
 
 type ExcludeSelectorsAndActions<T> = {
    [K in keyof T]: T[K] extends
-      | Selector<any, any>
-      | Action<any, any>
+      | InternalSelector<any, any>
+      | InternalAction<any, any>
       | WithActionToken<Subject<any>>
       ? never
       : K;
@@ -57,12 +57,12 @@ type ExcludeStoreSignalHelperMethods<T> = {
 type StoreSignalType<T> = {
    [x in ExcludeStoreSignalHelperMethods<
       Pick<T, ExcludeActionSubject<T>>
-   >]: T[x] extends Selector<T, infer R>
+   >]: T[x] extends InternalSelector<any, infer R>
       ? Signal<R>
-      : T[x] extends Action<T, infer P>
+      : T[x] extends InternalAction<any, infer P>
       ? P extends undefined
-         ? () => Action<T, undefined>
-         : (props: P) => Action<T, P>
+         ? () => InternalAction<T, undefined>
+         : (props: P) => InternalAction<T, P>
       : T[x] extends StoreSlice<infer T2>
       ? StoreSignalType<T2>
       : WritableSignal<T[x]>;
@@ -73,7 +73,7 @@ type StoreSignalType<T> = {
          : x extends string
          ? `$${x}`
          : never
-      : never]: T[x] extends Action<T, infer P>
+      : never]: T[x] extends InternalAction<any, infer P>
       ? WithActionToken<Subject<P>>
       : never;
 };
@@ -94,6 +94,16 @@ type StoreSignalPatchParam<T> = Partial<
 type StoreSignalHelperMethods<T> = {
    patch: (value: StoreSignalPatchParam<T>) => void;
    view: Signal<T>;
+};
+
+export type Store<T> = {
+   [x in keyof T]: T[x] extends InternalAction<any, infer P>
+      ? T[x] extends InternalSelector<any, infer R>
+         ? InternalSelector<Store<T>, R>
+         : InternalAction<Store<T>, P>
+      : T[x] extends InternalSelector<any, infer R>
+      ? InternalSelector<Store<T>, R>
+      : T[x];
 };
 
 export type StoreSignal<T> = StoreSignalType<T> & StoreSignalHelperMethods<T>;
