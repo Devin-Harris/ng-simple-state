@@ -1,0 +1,12 @@
+<div class="example-page">
+   <h2>Nested Store Example</h2>
+
+   <div class="state-container">
+      <label>State View</label>
+      <pre>{{ store.view() | json }}</pre>
+   </div>
+
+   <button [disabled]="store.callStateStore.loading()" (click)="onLoad()">
+      Load Entity
+   </button>
+</div>

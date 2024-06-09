@@ -8,7 +8,7 @@ import {
 } from 'projects/libs/ngx-simple-state/src/lib/selector';
 import {
    StoreSignalInput,
-   storeSignal,
+   store,
 } from 'projects/libs/ngx-simple-state/src/lib/store-signal';
 
 export interface State {
@@ -30,7 +30,7 @@ const counterStoreInitialValue: StoreSignalInput<State> = {
    /**
     * Actions should be defined with the createAction method.
     * This method puts a special token on the function objects which is used
-    * when building the storeSignal to automatically impose the state objects when calling
+    * when building the store to automatically impose the state objects when calling
     * the Actions. It also creates another field with a $ prefix which is a subject of the given
     * Action. This is useful when you want to use rxjs or dependency injection to
     * trigger other events from a interaction.
@@ -43,7 +43,7 @@ const counterStoreInitialValue: StoreSignalInput<State> = {
    /**
     * Selectors should be defined with the createSelector method.
     * This method puts a special token on the function objects which is used
-    * when building the storeSignal to force the selectors to be readonly signals
+    * when building the store to force the selectors to be readonly signals
     * instead of writable ones.
     */
    lessThan5: createSelector((state) => state.count() < 5),
@@ -53,6 +53,6 @@ const counterStoreInitialValue: StoreSignalInput<State> = {
    ),
 };
 
-export const CounterStore = storeSignal(counterStoreInitialValue, {
+export const CounterStore = store(counterStoreInitialValue, {
    providedIn: 'root',
 });

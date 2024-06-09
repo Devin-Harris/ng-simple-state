@@ -62,7 +62,7 @@ const counterStoreInitialValue: StoreSignalInput<State> = {
    /**
     * Actions should be defined with the createAction method.
     * This method puts a special token on the function objects which is used
-    * when building the storeSignal to automatically impose the state objects when calling
+    * when building the store to automatically impose the state objects when calling
     * the Actions. It also creates another field with a $ prefix which is a subject of the given
     * Action. This is useful when you want to use rxjs or dependency injection to
     * trigger other events from a interaction.
@@ -75,7 +75,7 @@ const counterStoreInitialValue: StoreSignalInput<State> = {
    /**
     * Selectors should be defined with the createSelector method.
     * This method puts a special token on the function objects which is used
-    * when building the storeSignal to force the selectors to be readonly signals
+    * when building the store to force the selectors to be readonly signals
     * instead of writable ones. Also notice how selectors can be used in other selectors.
     * This can cause circular references so be mindful when using selectors within selectors.
     */
@@ -87,12 +87,12 @@ const counterStoreInitialValue: StoreSignalInput<State> = {
 };
 ```
 
-The `StoreSignalInput` prevents certain keys such as `patch`', `view`, and \$ prefixed actions (`$setCount`, `$increment`, `$decrement`, `$reset` in this case) from being defined as the store with automatically impose those fields on the store object.
+The `StoreSignalInput` prevents certain keys such as `patch`, `view`, and \$ prefixed actions (`$setCount`, `$increment`, `$decrement`, `$reset` in this case) from being defined as the store with automatically impose those fields on the store object.
 
-Finally we can use this initial value with the `storeSignal` method. This method takes an initial value and a config option where you can define where the store is providedIn.
+Finally we can use this initial value with the `store` method. This method takes an initial value and a config option where you can define where the store is providedIn.
 
 ```typescript
-export const CounterStore = storeSignal(counterStoreInitialValue, {
+export const CounterStore = store(counterStoreInitialValue, {
    providedIn: 'root',
 });
 ```
@@ -182,10 +182,10 @@ export class AsyncLoadApiService {
 }
 ```
 
-I can then define the initial value and pass it to the `storeSignal`. Also notice how we are not using the `StoreSignalInput` as we did in the above example. This requires us to pass the generic `State` interface to the storeSignal call so it can properly determine the type behind the store:
+I can then define the initial value and pass it to the `store`. Also notice how we are not using the `StoreSignalInput` as we did in the above example. This requires us to pass the generic `State` interface to the store call so it can properly determine the type behind the store:
 
 ```typescript
-export const AsyncLoadStore = storeSignal<State>(
+export const AsyncLoadStore = store<State>(
    {
       // Root State
       callState: LoadingState.Init,
@@ -230,6 +230,8 @@ export const AsyncLoadStore = storeSignal<State>(
    { providedIn: 'root' }
 );
 ```
+
+You can also see how `patch` is used in the `loadEntitySuccess` and `loadEntityFailure` actions. Patch will essentially set the provided keys to the provided values with the stores writable signals. Of course you can only patch root level state fields. i.e. patching selectors or actions is not allowed. This is useful for when you want to change multiple fields in the store at the same time without having to call the set method on each signal within the store.
 
 Then finally utilizing this store you can see how async requests can be handled and mapped into new state mutations in a very straight forward and declarative manner:
 

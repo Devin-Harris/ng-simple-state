@@ -7,7 +7,7 @@ import {
    Selector,
    createSelector,
 } from 'projects/libs/ngx-simple-state/src/lib/selector';
-import { storeSignal } from 'projects/libs/ngx-simple-state/src/public-api';
+import { store } from 'projects/libs/ngx-simple-state/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallState,
@@ -29,7 +29,7 @@ export interface State {
    error: Selector<State, Error | null>;
 }
 
-export const AsyncLoadStore = storeSignal<State>(
+export const AsyncLoadStore = store<State>(
    {
       // Root State
       callState: LoadingState.Init,
