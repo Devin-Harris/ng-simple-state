@@ -13,7 +13,7 @@ import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallStateStoreType,
    LoadingState,
-   callStateStoreInitialValue,
+   callStateStoreInput,
 } from './call-state.model';
 
 export type NestedAsyncStoreType = Store<{
@@ -33,7 +33,7 @@ export type NestedAsyncStoreType = Store<{
 export const AsyncLoadWithCallStateStore = store<NestedAsyncStoreType>(
    {
       // Store slices
-      callStateStore: createStoreSlice(callStateStoreInitialValue),
+      callStateStore: createStoreSlice(callStateStoreInput),
 
       // Root State
       entityName: null,

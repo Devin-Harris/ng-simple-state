@@ -32,25 +32,24 @@ export type CallStateStoreType = Store<{
    error: Selector<Error | null>;
 }>;
 
-export const callStateStoreInitialValue: StoreSignalInput<CallStateStoreType> =
-   {
-      callState: LoadingState.Init,
+export const callStateStoreInput: StoreSignalInput<CallStateStoreType> = {
+   callState: LoadingState.Init,
 
-      setLoaded: createAction((state) => {
-         state.patch({ callState: LoadingState.Loaded });
-      }),
-      setLoading: createAction((state) => {
-         state.patch({ callState: LoadingState.Loading });
-      }),
-      setError: createAction((state, props) => {
-         state.patch({ callState: { error: props.error } });
-      }),
+   setLoaded: createAction((state) => {
+      state.patch({ callState: LoadingState.Loaded });
+   }),
+   setLoading: createAction((state) => {
+      state.patch({ callState: LoadingState.Loading });
+   }),
+   setError: createAction((state, props) => {
+      state.patch({ callState: { error: props.error } });
+   }),
 
-      loading: createSelector(
-         (state) => state.callState() === LoadingState.Loading
-      ),
-      error: createSelector((state) => {
-         const callState = state.callState();
-         return isErrorState(callState) ? callState.error : null;
-      }),
-   };
+   loading: createSelector(
+      (state) => state.callState() === LoadingState.Loading
+   ),
+   error: createSelector((state) => {
+      const callState = state.callState();
+      return isErrorState(callState) ? callState.error : null;
+   }),
+};

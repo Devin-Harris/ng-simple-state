@@ -10,19 +10,19 @@ export type CounterStoreType = Store<{
    increment: Action;
 }>;
 
-export const counterStoreInitialValue: CounterStoreType = {
+export const counterStoreInput: CounterStoreType = {
    count: 0,
    increment: createAction((state) => state.count.update((c) => c + 1)),
 };
 
 export const SingletonCounterStore = store<CounterStoreType>(
-   counterStoreInitialValue,
+   counterStoreInput,
    {
       providedIn: 'root',
    }
 );
 export const NonSingletonCounterStore = store<CounterStoreType>(
-   counterStoreInitialValue,
+   counterStoreInput,
    {
       providedIn: 'root',
    }

@@ -36,8 +36,8 @@ export const AsyncLoadStore = store<AsyncStoreType>(
       entityName: null,
       entityId: null,
 
-      // Actions
       /**
+       * Actions
        * Notice how you can utilize dependency injection in the state action callback
        * function parameters. These items should always be after the required parameters
        * so for actions that do not have props defined the signature should still
