@@ -420,7 +420,7 @@ Similar to selectors and actions, we utilize a helper function called `createSto
 
 ### Signal Based
 
-All of these examples so the flexibility ngx-simple-state provides. The best thing about this library is it is signal based. Look back at our counter example:
+All of these examples show the flexibility ngx-simple-state provides. The best thing about this library is it is signal based. Look back at our counter example:
 
 ```typescript
 export type CounterStore = Store<{
