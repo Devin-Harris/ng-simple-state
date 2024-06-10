@@ -115,7 +115,7 @@ The `StoreInput` prevents certain keys such as `patch`, `view`, and \$ prefixed 
 Finally we can use this input with the `store` method. This method takes the input we've defined and a config option where you can define where the store is providedIn.
 
 ```typescript
-export const CounterStore = store(counterStoreInput, {
+export const CounterStore = createStore(counterStoreInput, {
    providedIn: 'root',
 });
 ```
@@ -449,7 +449,7 @@ const counterStoreInput: StoreInput<CounterStore> = {
       (state) => !state.lessThan5() && state.lessThan10()
    ),
 };
-export const CounterStore = store(counterStoreInput, {
+export const CounterStore = createStore(counterStoreInput, {
    providedIn: 'root',
 });
 ```
