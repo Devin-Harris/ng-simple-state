@@ -37,14 +37,10 @@ npm i ngx-simple-state
 
 The basic idea behind ngx-simple-state is to provide a set of helper function and types for declaring state, state mutations, and derived state easily. There are 4 main concepts within this library to note. At first glance you may already see some similarities to patterns like redux and libraries like ngrx but lets dive deeper into each of these.
 
-1. **Root State**
-   The root state is the root level fields of your store. Each root level field will be converted into a writable signal that you can update and retrieve as you wish.
-2. **Selectors**
-   Selectors are derived state from the given root state fields. There are often times when you are storing some value in state, but want to do some computations on that value before say displaying it in the UI. Selectors are great for this as you can consume all the root state fields within the store AND all the other selectors within the store as well. Each selectors is converted into a computed (readonly) signal.
-3. **Actions**
-   Actions are callable functions that can have some effect on how the state changes. An action, when called, has access to what the state currently is, as well as the capability to change said state in some callback function. Each action can have a payload defined and if it does its is a required input when calling the action. Each action also has a \$ prefixed subject added to the store in case more complex rxjs operations need to be triggered off an action call. Actions built inside the `store` helper function also have access to dependency injection which can be useful in certain instances.
-4. **Store Slices**
-   Store slices are a way of utilizing nested stores. In some instances a generic store, such as for handling whether there is asynchronous data being received and what the state of that request is, would be nice to have defined once and then imposed into other more specific store objects. A store slice can essentially wrap a store with some special notations and allow one store to be used in another.
+1. **Root State**: The root state is the root level fields of your store. Each root level field will be converted into a writable signal that you can update and retrieve as you wish.
+2. **Selectors**: Selectors are derived state from the given root state fields. There are often times when you are storing some value in state, but want to do some computations on that value before say displaying it in the UI. Selectors are great for this as you can consume all the root state fields within the store AND all the other selectors within the store as well. Each selectors is converted into a computed (readonly) signal.
+3. **Actions**: Actions are callable functions that can have some effect on how the state changes. An action, when called, has access to what the state currently is, as well as the capability to change said state in some callback function. Each action can have a payload defined and if it does its is a required input when calling the action. Each action also has a \$ prefixed subject added to the store in case more complex rxjs operations need to be triggered off an action call. Actions built inside the `store` helper function also have access to dependency injection which can be useful in certain instances.
+4. **Store Slices**: Store slices are a way of utilizing nested stores. In some instances a generic store, such as for handling whether there is asynchronous data being received and what the state of that request is, would be nice to have defined once and then imposed into other more specific store objects. A store slice can essentially wrap a store with some special notations and allow one store to be used in another.
 
 <a name="usage"/>
 
