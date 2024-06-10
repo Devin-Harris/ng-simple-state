@@ -450,7 +450,7 @@ export const CounterStore = createStore(counterStoreInput, {
 });
 ```
 
-Utilizing this store inside a component gives us far more flexibility using the signal primitives angular provides. For example, lets say you want a computed property on the component level and not defined in the (in this case) global store. You can simply use the signals from the injected store inside explicitely defined computed fields on the component:
+Utilizing this store inside a component gives us far more flexibility using the signal primitives angular provides. For example, lets say you want a computed property on the component level and not defined in the (in this case) global store. You can simply use the signals from the injected store inside explicitly defined computed fields on the component:
 
 ```typescript
 @Component({...})
