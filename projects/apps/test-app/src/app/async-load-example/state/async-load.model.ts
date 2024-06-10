@@ -7,7 +7,10 @@ import {
    Selector,
    createSelector,
 } from 'projects/libs/ngx-simple-state/src/lib/selector';
-import { Store, store } from 'projects/libs/ngx-simple-state/src/public-api';
+import {
+   Store,
+   createStore,
+} from 'projects/libs/ngx-simple-state/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallState,
@@ -29,7 +32,7 @@ export type AsyncStoreType = Store<{
    error: Selector<Error | null>;
 }>;
 
-export const AsyncLoadStore = store<AsyncStoreType>(
+export const AsyncLoadStore = createStore<AsyncStoreType>(
    {
       // Root State
       callState: LoadingState.Init,

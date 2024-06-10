@@ -2,7 +2,7 @@ import {
    Action,
    Selector,
    Store,
-   StoreSignalInput,
+   StoreInput,
    createAction,
    createSelector,
 } from 'projects/libs/ngx-simple-state/src/public-api';
@@ -32,7 +32,7 @@ export type CallStateStoreType = Store<{
    error: Selector<Error | null>;
 }>;
 
-export const callStateStoreInput: StoreSignalInput<CallStateStoreType> = {
+export const callStateStoreInput: StoreInput<CallStateStoreType> = {
    callState: LoadingState.Init,
 
    setLoaded: createAction((state) => {

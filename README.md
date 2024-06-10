@@ -18,6 +18,7 @@ This library also took some inspiration from ngrx [SignalStore](https://ngrx.io/
    -  [Counter Example](#counter)
    -  [Async Example](#async)
    -  [Nested Stores Example](#nested)
+   -  [Signal Based](#signal-based)
 -  [Issues](#issues)
 
 <a name="installation"/>
@@ -34,22 +35,16 @@ npm i ngx-simple-state
 
 ## Basic Concepts
 
-The basic idea behind ngx-simple-state is to provide a set of helper function and types for declaring state, state mutations, and derived state easily. There are 4 main concepts within this library to note:
+The basic idea behind ngx-simple-state is to provide a set of helper function and types for declaring state, state mutations, and derived state easily. There are 4 main concepts within this library to note. At first glance you may already see some similarities to patterns like redux and libraries like ngrx but lets dive deeper into each of these.
 
--  Root State
--  Selectors
--  Actions
--  Store Slices
-
-At first glance you may already see some similarities to patterns like redux and libraries like ngrx but lets dive deeper into each of these.
-
-1. The root state is the root level fields of your store. Each root level field will be converted into a writable signal that you can update and retrieve as you wish.
-
-2. Selectors are derived state from the given root state fields. There are often times when you are storing some value in state, but want to do some computations on that value before say displaying it in the UI. Selectors are great for this as you can consume all the root state fields within the store AND all the other selectors within the store as well. Each selectors is converted into a computed (readonly) signal.
-
-3. Actions are callable functions that can have some effect on how the state changes. An action, when called, has access to what the state currently is, as well as the capability to change said state in some callback function. Each action can have a payload defined and is a required input when calling the action. Each action also has a \$ prefixed subject added to the store in case more complex rxjs operations need to be triggered off an action call. Actions built inside the `store` helper function also have access to dependency injection which can be useful in certain instances.
-
-4. Store slices are a way of utilizing nested stores. In some instances a generic store, such as for handling whether there is asynchronous data being received and what the state of that request is, would be nice to have defined once and then imposed into other more specific store objects. A store slice can essentially wrap a store with some special notations and allow one store to be used in another.
+1. **Root State**
+   The root state is the root level fields of your store. Each root level field will be converted into a writable signal that you can update and retrieve as you wish.
+2. **Selectors**
+   Selectors are derived state from the given root state fields. There are often times when you are storing some value in state, but want to do some computations on that value before say displaying it in the UI. Selectors are great for this as you can consume all the root state fields within the store AND all the other selectors within the store as well. Each selectors is converted into a computed (readonly) signal.
+3. **Actions**
+   Actions are callable functions that can have some effect on how the state changes. An action, when called, has access to what the state currently is, as well as the capability to change said state in some callback function. Each action can have a payload defined and if it does its is a required input when calling the action. Each action also has a \$ prefixed subject added to the store in case more complex rxjs operations need to be triggered off an action call. Actions built inside the `store` helper function also have access to dependency injection which can be useful in certain instances.
+4. **Store Slices**
+   Store slices are a way of utilizing nested stores. In some instances a generic store, such as for handling whether there is asynchronous data being received and what the state of that request is, would be nice to have defined once and then imposed into other more specific store objects. A store slice can essentially wrap a store with some special notations and allow one store to be used in another.
 
 <a name="usage"/>
 
@@ -63,13 +58,16 @@ Lets start with a simple counter example. The first step is to define the Store 
 
 ```typescript
 export type CounterStore = Store<{
+   // Root State
    count: number;
 
+   // Actions
    setCount: Action<number>;
    increment: Action;
    decrement: Action;
    reset: Action;
 
+   // Selectors
    lessThan5: Selector<boolean>;
    lessThan10: Selector<boolean>;
    between5and10: Selector<boolean>;
@@ -78,10 +76,10 @@ export type CounterStore = Store<{
 
 This example defines one root level field as well as some Action and Selector fields which we will explore further later.
 
-Once your type is defined you can create the input for your counter store using said store type as well as the `StoreSignalInput` generic type.
+Once your type is defined you can create the input for your counter store using said store type as well as the `StoreInput` generic type.
 
 ```typescript
-const counterStoreInput: StoreSignalInput<CounterStore> = {
+const counterStoreInput: StoreInput<CounterStore> = {
    count: 0,
 
    /**
@@ -112,7 +110,7 @@ const counterStoreInput: StoreSignalInput<CounterStore> = {
 };
 ```
 
-The `StoreSignalInput` prevents certain keys such as `patch`, `view`, and \$ prefixed actions (`$setCount`, `$increment`, `$decrement`, `$reset` in this case) from being defined as the store with automatically impose those fields on the store object.
+The `StoreInput` prevents certain keys such as `patch`, `view`, and \$ prefixed actions (`$setCount`, `$increment`, `$decrement`, `$reset` in this case) from being defined as the store will automatically impose those fields on the store object.
 
 Finally we can use this input with the `store` method. This method takes the input we've defined and a config option where you can define where the store is providedIn.
 
@@ -160,10 +158,9 @@ Also notice how actions are imposed as callable functions on the store object as
 
 Of course a simple counter isn't always the best representation of real world use cases. Lets explore an example that deals with asynchronous interactions and dependency injection.
 
-Lets again start by defining a store type:
+Lets first define some helper types we will use later:
 
 ```typescript
-// Helpers Types
 export interface Error {
    message: string;
 }
@@ -177,17 +174,23 @@ export type CallState = LoadingState | ErrorState;
 export function isErrorState(callstate: CallState): callstate is ErrorState {
    return !!Object.hasOwn(callstate as object, 'error');
 }
+```
 
-// Store Type
+Then we can define a store type:
+
+```typescript
 export type AsyncStoreType = Store<{
+   // Root State
    entityName: string | null;
    entityId: number | null;
    callState: CallState;
 
+   // Actions
    loadEntity: Action<{ id: number }>;
    loadEntitySuccess: Action<{ entityName: string; entityId: number }>;
    loadEntityFailure: Action<{ error: Error }>;
 
+   // Selectors
    loading: Selector<boolean>;
    error: Selector<Error | null>;
 }>;
@@ -225,10 +228,10 @@ export class AsyncLoadApiService {
 }
 ```
 
-I can then define the input and pass it to the `store`. Also notice how we are not using the `StoreSignalInput` as we did in the above example. This requires us to pass the `AsyncStoreType` type to the store call so it can properly determine the type behind the store:
+I can then define the input and pass it to the `store`. Also notice how we are not using the `StoreInput` as we did in the above example. This requires us to pass the `AsyncStoreType` type to the store call so it can properly determine the type behind the store:
 
 ```typescript
-export const AsyncLoadStore = store<AsyncStoreType>(
+export const AsyncLoadStore = createStore<AsyncStoreType>(
    {
       // Root State
       callState: LoadingState.Init,
@@ -309,7 +312,7 @@ export class AsyncLoadComponent {
 
 <a name="nested"/>
 
-## Nested Stores Example
+### Nested Stores Example
 
 Having the ability to nest stores is also possible with ngx-simple-state. This can be useful in a case where dealing with asynchronous interactions we always want to keep track the of `CallState` and we have multiple different stores for different entities in our application. Redefining all of the callstate related selectors, root fields, and actions could be cumbersome so nesting stores is a great opportunity to reduce code duplication.
 
@@ -317,17 +320,20 @@ For this we need to create 2 store inputs. Lets start with the CallStateStore in
 
 ```typescript
 export type CallStateStoreType = Store<{
+   // Root State
    callState: CallState;
 
+   // Actions
    setLoaded: Action;
    setLoading: Action;
    setError: Action<{ error: Error }>;
 
+   // Selectors
    loading: Selector<boolean>;
    error: Selector<Error | null>;
 }>;
 
-export const callStateStoreInput: StoreSignalInput<CallStateStoreType> = {
+export const callStateStoreInput: StoreInput<CallStateStoreType> = {
    callState: LoadingState.Init,
 
    setLoaded: createAction((state) => {
@@ -375,7 +381,7 @@ Notice how we have a new helper type called `StoreSlice`. This helper type takes
 Building the input for this store then looks like this:
 
 ```typescript
-export const AsyncLoadWithCallStateStore = store<NestedAsyncStoreType>(
+export const AsyncLoadWithCallStateStore = createStore<NestedAsyncStoreType>(
    {
       // Store slices
       callStateStore: createStoreSlice(callStateStoreInput),
@@ -413,6 +419,103 @@ export const AsyncLoadWithCallStateStore = store<NestedAsyncStoreType>(
 ```
 
 Similar to selectors and actions, we utilize a helper function called `createStoreSlice` which takes in the `callStateStoreInput`. With this store slice injected into our `AsyncLoadWithCallStateStore` we can now use the root fields, selectors, and actions from the CallStateStore directly in our `AsyncLoadWithCallStateStore` as you can see in the `loadEntity` action where we `state.callStateStore.setLoading();`. The view, and patch methods are also available on the `callStateStore` field within our `AsyncLoadWithCallStateStore`, and the top level `AsyncLoadWithCallStateStore` will recursively call the `callStateStore` patch and view methods when necessary.
+
+<a name="signal-based"/>
+
+### Signal Based
+
+All of these examples so the flexibility ngx-simple-state provides. The best thing about this library is it is signal based. Look back at our counter example:
+
+```typescript
+export type CounterStore = Store<{
+   count: number;
+   setCount: Action<number>;
+   increment: Action;
+   decrement: Action;
+   reset: Action;
+   lessThan5: Selector<boolean>;
+   lessThan10: Selector<boolean>;
+   between5and10: Selector<boolean>;
+}>;
+const counterStoreInput: StoreInput<CounterStore> = {
+   count: 0,
+   setCount: createAction((state, count) => state.count.set(count)),
+   increment: createAction((state) => state.count.update((c) => c + 1)),
+   decrement: createAction((state) => state.count.update((c) => c - 1)),
+   reset: createAction((state) => state.setCount(0)),
+   lessThan5: createSelector((state) => state.count() < 5),
+   lessThan10: createSelector((state) => state.count() < 10),
+   between5and10: createSelector(
+      (state) => !state.lessThan5() && state.lessThan10()
+   ),
+};
+export const CounterStore = store(counterStoreInput, {
+   providedIn: 'root',
+});
+```
+
+Utilizing this store inside a component gives us far more flexibility using the signal primitives angular provides. For example, lets say you want a computed property on the component level and not defined in the (in this case) global store. You can simply use the signals from the injected store inside explicitely defined computed fields on the component:
+
+```typescript
+@Component({...})
+export class CounterExampleComponent {
+   readonly store = inject(CounterStore);
+
+   // Component level selector
+   lessThan1000 = computed(() => this.store.count() < 1000);
+}
+```
+
+You can even utilize the `effect` primitive to say trigger some component level changes when certain or any store state changes happen:
+
+```typescript
+@Component({...})
+export class CounterExampleComponent {
+   readonly store = inject(CounterStore);
+
+   $stateChange = effect(() => {
+      const view = this.store.view();
+      this.initialize();
+   });
+
+   $lessThan10Change = effect(() => {
+      if (this.store.lessThan10()) {
+         this.showLessThan10Toast()
+      }
+   });
+
+   private initialize(): void {
+      // initialize component based on state from store
+   }
+
+   private showLessThan10Toast(): void {
+      // if count state was greater than or equal to 10 and then went under 10, show some warning toast message
+   }
+}
+```
+
+You can even have component level stores if you prefer:
+
+```typescript
+@Component({...})
+export class CounterExampleComponent {
+   // Utilizing storeSlice outside of constructor because we dont care about injection context for this particular store
+   readonly localStore = storeSlice<CounterStoreType>({
+      count: 0,
+      setCount: createAction((state, count) => state.count.set(count)),
+      increment: createAction((state) => state.count.update((c) => c + 1)),
+      decrement: createAction((state) => state.count.update((c) => c - 1)),
+      reset: createAction((state) => state.setCount(0)),
+      lessThan5: createSelector((state) => state.count() < 5),
+      lessThan10: createSelector((state) => state.count() < 10),
+      between5and10: createSelector(
+         (state) => !state.lessThan5() && state.lessThan10()
+      ),
+   });
+}
+```
+
+There are probably more interesting strategies you can employ with these implementations so feel free to try it out and let others know what you come up with!
 
 <a name="issues"/>
 

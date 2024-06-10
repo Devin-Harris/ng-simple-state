@@ -2,7 +2,7 @@ import {
    Action,
    Store,
    createAction,
-   store,
+   createStore,
 } from 'projects/libs/ngx-simple-state/src/public-api';
 
 export type CounterStoreType = Store<{
@@ -15,13 +15,13 @@ export const counterStoreInput: CounterStoreType = {
    increment: createAction((state) => state.count.update((c) => c + 1)),
 };
 
-export const SingletonCounterStore = store<CounterStoreType>(
+export const SingletonCounterStore = createStore<CounterStoreType>(
    counterStoreInput,
    {
       providedIn: 'root',
    }
 );
-export const NonSingletonCounterStore = store<CounterStoreType>(
+export const NonSingletonCounterStore = createStore<CounterStoreType>(
    counterStoreInput,
    {
       providedIn: 'root',

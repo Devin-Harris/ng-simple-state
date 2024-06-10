@@ -8,11 +8,11 @@ import {
 } from 'projects/libs/ngx-simple-state/src/lib/selector';
 import {
    Store,
-   StoreSignalInput,
-   store,
+   StoreInput,
+   createStore,
 } from 'projects/libs/ngx-simple-state/src/lib/store-signal';
 
-export type CounterStore = Store<{
+export type CounterStoreType = Store<{
    count: number;
 
    setCount: Action<number>;
@@ -25,7 +25,7 @@ export type CounterStore = Store<{
    between5and10: Selector<boolean>;
 }>;
 
-const counterStoreInput: StoreSignalInput<CounterStore> = {
+const counterStoreInput: StoreInput<CounterStoreType> = {
    count: 0,
 
    /**
@@ -54,6 +54,6 @@ const counterStoreInput: StoreSignalInput<CounterStore> = {
    ),
 };
 
-export const CounterStore = store(counterStoreInput, {
+export const CounterStore = createStore(counterStoreInput, {
    providedIn: 'root',
 });

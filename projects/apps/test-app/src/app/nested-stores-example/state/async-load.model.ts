@@ -6,8 +6,8 @@ import {
 import {
    Store,
    StoreSlice,
+   createStore,
    createStoreSlice,
-   store,
 } from 'projects/libs/ngx-simple-state/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
@@ -30,7 +30,7 @@ export type NestedAsyncStoreType = Store<{
    loadEntityFailure: Action<{ error: Error }>;
 }>;
 
-export const AsyncLoadWithCallStateStore = store<NestedAsyncStoreType>(
+export const AsyncLoadWithCallStateStore = createStore<NestedAsyncStoreType>(
    {
       // Store slices
       callStateStore: createStoreSlice(callStateStoreInput),

@@ -112,7 +112,7 @@ export interface StoreSignalConfig {
    providedIn: Type<any> | 'root' | 'platform' | 'any' | null; // Pulled from angulars Injectable interface options
 }
 
-export type StoreSignalInput<T> = Pick<
+export type StoreInput<T> = Pick<
    Pick<T, ExcludeActionSubject<T>>,
    ExcludeStoreSignalHelperMethods<Pick<T, ExcludeActionSubject<T>>>
 >;
@@ -128,19 +128,19 @@ export function isStoreSlice<T>(obj: any): obj is StoreSlice<T> {
 }
 
 export function createStoreSlice<T>(
-   featureInitialValue: StoreSignalInput<T>
+   featureInitialValue: StoreInput<T>
 ): StoreSlice<T> {
    Object.assign(featureInitialValue, { [NGX_SIMPLE_STORE_SLICE_TOKEN]: true });
    return featureInitialValue as StoreSlice<T>;
 }
 
 export function storeSlice<InitialValueType extends {}>(
-   intialValue: StoreSignalInput<InitialValueType>,
+   intialValue: StoreInput<InitialValueType>,
    injector: Injector | null = null
-) {
+): StoreSignal<InitialValueType> {
    const keys = Object.keys(
       intialValue
-   ) as (keyof StoreSignalInput<InitialValueType>)[];
+   ) as (keyof StoreInput<InitialValueType>)[];
 
    if (!intialValue || keys.length === 0) {
       throw new Error('Must provide an inital object value to store');
@@ -234,13 +234,13 @@ export function storeSlice<InitialValueType extends {}>(
    return store;
 }
 
-export function store<InitialValueType extends {}>(
-   intialValue: StoreSignalInput<InitialValueType>,
+export function createStore<InitialValueType extends {}>(
+   intialValue: StoreInput<InitialValueType>,
    config?: StoreSignalConfig
 ): Type<StoreSignal<InitialValueType>> {
    const keys = Object.keys(
       intialValue
-   ) as (keyof StoreSignalInput<InitialValueType>)[];
+   ) as (keyof StoreInput<InitialValueType>)[];
 
    if (!intialValue || keys.length === 0) {
       throw new Error('Must provide an inital object value to store');
