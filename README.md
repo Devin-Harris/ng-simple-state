@@ -70,7 +70,7 @@ export type CounterStore = Store<{
 }>;
 ```
 
-This example defines one root level field as well as some Action and Selector fields which we will explore further later.
+This example defines one root level field as well as some Action and Selector fields which we will explore further later. Notice the `Store` generic type. This is a helper type that you wrap the inner store fields with to ensure each action and selector knows what fields they have access to on the passed in store object.
 
 Once your type is defined you can create the input for your counter store using said store type as well as the `StoreInput` generic type.
 
