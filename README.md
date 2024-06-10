@@ -462,7 +462,7 @@ export class CounterExampleComponent {
 }
 ```
 
-You can even utilize the `effect` primitive to say trigger some component level changes when certain or any store state changes happen:
+You can even utilize the `effect` primitive to trigger some component level changes when certain or any store state changes happen:
 
 ```typescript
 @Component({...})
