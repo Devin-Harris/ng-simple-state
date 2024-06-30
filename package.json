@@ -40,7 +40,7 @@
    "main": "index.js",
    "repository": {
       "type": "git",
-      "url": "git+https://github.com/Devin-Harris/ng-simple-state.git"
+      "url": "git+https://github.com/Devin-Harris/ngx-simple-state.git"
    },
    "keywords": [
       "ngx",
@@ -52,7 +52,7 @@
    "author": "Devin Harris",
    "license": "ISC",
    "bugs": {
-      "url": "https://github.com/Devin-Harris/ng-simple-state/issues"
+      "url": "https://github.com/Devin-Harris/ngx-simple-state/issues"
    },
-   "homepage": "https://github.com/Devin-Harris/ng-simple-state#readme"
+   "homepage": "https://github.com/Devin-Harris/ngx-simple-state#readme"
 }

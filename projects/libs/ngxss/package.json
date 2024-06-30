@@ -1,6 +1,6 @@
 {
    "name": "ngxss",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "peerDependencies": {
       "@angular/common": "^16.2.0",
       "@angular/core": "^16.2.0"
@@ -11,7 +11,7 @@
    "description": "Simple state management for angular.",
    "repository": {
       "type": "git",
-      "url": "git+https://github.com/Devin-Harris/ng-simple-state.git"
+      "url": "git+https://github.com/Devin-Harris/ngx-simple-state.git"
    },
    "keywords": [
       "ngx",
@@ -23,8 +23,8 @@
    "author": "Devin Harris",
    "license": "ISC",
    "bugs": {
-      "url": "https://github.com/Devin-Harris/ng-simple-state/issues"
+      "url": "https://github.com/Devin-Harris/ngx-simple-state/issues"
    },
-   "homepage": "https://github.com/Devin-Harris/ng-simple-state#readme",
+   "homepage": "https://github.com/Devin-Harris/ngx-simple-state#readme",
    "sideEffects": false
 }
