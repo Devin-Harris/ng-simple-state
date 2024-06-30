@@ -28,7 +28,7 @@ type ExcludeSelectorsAndActionsAndSlices<T> = {
       | InternalSelector<any, any>
       | InternalAction<any, any>
       | WithActionToken<Subject<any>>
-      | StoreSlice<T[K]>
+      | StoreSignal<any>
       ? never
       : K;
 }[keyof T];
@@ -63,7 +63,7 @@ type StoreSignalType<T> = {
       ? P extends undefined
          ? () => InternalAction<T, undefined>
          : (props: P) => InternalAction<T, P>
-      : T[x] extends StoreSlice<infer T2>
+      : T[x] extends StoreSignal<Store<infer T2>>
       ? StoreSignalType<T2>
       : WritableSignal<T[x]>;
 } & {
@@ -83,9 +83,9 @@ type StoreSignalPatchParam<T> = Partial<
       [x in keyof Pick<
          T,
          ExcludeSelectorsAndActions<T>
-      > as T[x] extends StoreSlice<any> ? x : never]: T[x] extends StoreSlice<
-         infer T2
-      >
+      > as T[x] extends StoreSignal<Store<any>>
+         ? x
+         : never]: T[x] extends StoreSignal<Store<infer T2>>
          ? StoreSignalPatchParam<T2>
          : T[x];
    }
@@ -106,7 +106,11 @@ export type Store<T> = {
       : T[x];
 };
 
-export type StoreSignal<T> = StoreSignalType<T> & StoreSignalHelperMethods<T>;
+export type StoreSignal<T> = StoreSignalType<T> &
+   StoreSignalHelperMethods<T> & {
+      [NGX_SIMPLE_STORE_SLICE_TOKEN]: true;
+      [NGX_SIMPLE_STORE_SLICE_INJECTOR_TOKEN]: WritableSignal<Injector | null>;
+   };
 
 export interface StoreSignalConfig {
    providedIn: Type<any> | 'root' | 'platform' | 'any' | null; // Pulled from angulars Injectable interface options
@@ -121,20 +125,18 @@ export const NGX_SIMPLE_STORE_SLICE_TOKEN = Symbol(
    'NGX_SIMPLE_STORE_SLICE_TOKEN'
 );
 
-export type StoreSlice<T> = T & { [NGX_SIMPLE_STORE_SLICE_TOKEN]: true };
-
-export function isStoreSlice<T>(obj: any): obj is StoreSlice<T> {
+export function isStoreSlice<T>(obj: any): obj is StoreSignal<T> {
    return obj && obj[NGX_SIMPLE_STORE_SLICE_TOKEN];
 }
 
-export function createStoreSlice<T>(
-   featureInitialValue: StoreInput<T>
-): StoreSlice<T> {
-   Object.assign(featureInitialValue, { [NGX_SIMPLE_STORE_SLICE_TOKEN]: true });
-   return featureInitialValue as StoreSlice<T>;
-}
+export const NGX_SIMPLE_STORE_SLICE_INJECTOR_TOKEN = Symbol(
+   'NGX_SIMPLE_STORE_SLICE_INJECTOR_TOKEN'
+);
+export const NGX_SIMPLE_STORE_SLICE_INITIAL_VALUE_TOKEN = Symbol(
+   'NGX_SIMPLE_STORE_SLICE_INITIAL_VALUE_TOKEN'
+);
 
-export function storeSlice<InitialValueType extends {}>(
+export function createStoreSlice<InitialValueType extends {}>(
    intialValue: StoreInput<InitialValueType>,
    injector: Injector | null = null
 ): StoreSignal<InitialValueType> {
@@ -147,6 +149,10 @@ export function storeSlice<InitialValueType extends {}>(
    }
 
    const store = Object.create(null);
+   store[NGX_SIMPLE_STORE_SLICE_INJECTOR_TOKEN] = signal<Injector | null>(
+      injector
+   );
+
    for (const k of keys) {
       const value = intialValue[k];
 
@@ -170,8 +176,10 @@ export function storeSlice<InitialValueType extends {}>(
 
          const fn: WithActionToken<Function> = Object.assign(
             (props?: any) => {
-               if (injector) {
-                  runInInjectionContext(injector, () => {
+               const storeInjector =
+                  store[NGX_SIMPLE_STORE_SLICE_INJECTOR_TOKEN]();
+               if (storeInjector) {
+                  runInInjectionContext(storeInjector, () => {
                      (value as Function)(store, props);
                   });
                } else {
@@ -191,9 +199,8 @@ export function storeSlice<InitialValueType extends {}>(
          }
          store[actionSubjectString] = subject;
       } else if (isStoreSlice(value)) {
-         store[k] = Object.assign(storeSlice(value, injector), {
-            [NGX_SIMPLE_STORE_SLICE_TOKEN]: true,
-         } as const);
+         value[NGX_SIMPLE_STORE_SLICE_INJECTOR_TOKEN].set(injector);
+         store[k] = value;
       } else {
          store[k] = signal(value);
       }
@@ -231,6 +238,11 @@ export function storeSlice<InitialValueType extends {}>(
       );
    }
    store.view = computed(() => storeView(store));
+
+   Object.assign(store, {
+      [NGX_SIMPLE_STORE_SLICE_TOKEN]: true,
+   });
+
    return store;
 }
 
@@ -249,7 +261,7 @@ export function createStore<InitialValueType extends {}>(
    @Injectable({ providedIn: config?.providedIn || null })
    class SignalStore {
       constructor(injector: Injector) {
-         Object.assign(this, storeSlice(intialValue, injector));
+         Object.assign(this, createStoreSlice(intialValue, injector));
       }
    }
 

@@ -1,3 +1,4 @@
+import { inject } from '@angular/core';
 import {
    Action,
    Selector,
@@ -6,6 +7,7 @@ import {
    createAction,
    createSelector,
 } from 'projects/libs/ngx-simple-state/src/public-api';
+import { AsyncLoadApiService } from '../../async-load-example/state/async-load-api.service';
 
 export interface Error {
    message: string;
@@ -24,6 +26,7 @@ export function isErrorState(callstate: CallState): callstate is ErrorState {
 export type CallStateStoreType = Store<{
    callState: CallState;
 
+   blah: Action<unknown>;
    setLoaded: Action;
    setLoading: Action;
    setError: Action<{ error: Error }>;
@@ -35,6 +38,9 @@ export type CallStateStoreType = Store<{
 export const callStateStoreInput: StoreInput<CallStateStoreType> = {
    callState: LoadingState.Init,
 
+   blah: createAction(async (state, _, s = inject(AsyncLoadApiService)) => {
+      console.log(await s.getEntity(1));
+   }),
    setLoaded: createAction((state) => {
       state.patch({ callState: LoadingState.Loaded });
    }),

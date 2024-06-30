@@ -25,7 +25,7 @@ export type CounterStoreType = Store<{
    between5and10: Selector<boolean>;
 }>;
 
-const counterStoreInput: StoreInput<CounterStoreType> = {
+export const counterStoreInput: StoreInput<CounterStoreType> = {
    count: 0,
 
    /**

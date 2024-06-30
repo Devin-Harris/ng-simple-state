@@ -5,7 +5,7 @@ import {
 } from 'projects/libs/ngx-simple-state/src/lib/action';
 import {
    Store,
-   StoreSlice,
+   StoreSignal,
    createStore,
    createStoreSlice,
 } from 'projects/libs/ngx-simple-state/src/public-api';
@@ -18,7 +18,7 @@ import {
 
 export type NestedAsyncStoreType = Store<{
    // Store slices
-   callStateStore: StoreSlice<CallStateStoreType>;
+   callStateStore: StoreSignal<CallStateStoreType>;
 
    // Root State
    entityName: string | null;

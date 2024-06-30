@@ -359,7 +359,7 @@ Next we make the `NestedAsyncStoreType`:
 ```typescript
 export type NestedAsyncStoreType = Store<{
    // Store slices
-   callStateStore: StoreSlice<CallStateStoreType>;
+   callStateStore: StoreSignal<CallStateStoreType>;
 
    // Root State
    entityName: string | null;
@@ -372,7 +372,7 @@ export type NestedAsyncStoreType = Store<{
 }>;
 ```
 
-Notice how we have a new helper type called `StoreSlice`. This helper type takes a generic of the store you are trying to create a slice of (in our case our `CallStateStoreType`).
+Notice how we utilize the `StoreSignal` and `CallStateStoreType` types when defined the NestedAsyncStoreType. This helper type takes allows the `createStore` and `createStoreSlice` to properly parse the inner store signals when patching, viewing, etc...
 
 Building the input for this store then looks like this:
 
@@ -496,7 +496,7 @@ You can even have component level stores if you prefer:
 @Component({...})
 export class CounterExampleComponent {
    // Utilizing storeSlice outside of constructor because we dont care about injection context for this particular store
-   readonly localStore = storeSlice<CounterStoreType>({
+   readonly localStore = createStoreSlice<CounterStoreType>({
       count: 0,
       setCount: createAction((state, count) => state.count.set(count)),
       increment: createAction((state) => state.count.update((c) => c + 1)),

@@ -1,24 +1,9 @@
 # NgxSimpleState
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.0.
+Simple state management for angular.
 
-## Code scaffolding
+The goal of NgxSimpleState is to provide a clean, signal based approach to handling state in angular applications. Many libraries such as ngrx, ngxs, and others require extensive boilerplate and knowledge of patterns such as redux. Libraries like these can provide consistency and more flexibility for large scale applications, but in some opinions could be cumbersome. NgxSimpleState attempts to provide a simple, declarative approach to defining how your state looks and can change, while also building on top of the new signal and computed primitives provided in recent angular versions.
 
-Run `ng generate component component-name --project ngx-simple-state` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-simple-state`.
-> Note: Don't forget to add `--project ngx-simple-state` or else it will be added to the default project in your `angular.json` file. 
+This library also took some inspiration from ngrx [SignalStore](https://ngrx.io/guide/signals/signal-store). This library has some concepts such as only creating computed signal fields, restricting of selectors within selectors, and proxy logic to recursively create signals for object fields. In my opinion these are strange implementations and were the main reasons for creating this library. Of course I am sure there are reasons for all of those implementations within ngrx's SignalStore, but for my needs a simpler and more flexible approach seemed warranted.
 
-## Build
-
-Run `ng build ngx-simple-state` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Publishing
-
-After building your library with `ng build ngx-simple-state`, go to the dist folder `cd dist/ngx-simple-state` and run `npm publish`.
-
-## Running unit tests
-
-Run `ng test ngx-simple-state` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+See full documentation on [github repository](https://github.com/Devin-Harris/ngx-simple-state)
