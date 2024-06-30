@@ -28,7 +28,7 @@ This library also took some inspiration from ngrx [SignalStore](https://ngrx.io/
 Install with **NPM**
 
 ```bash
-npm i ngx-simple-state
+npm i ngxss
 ```
 
 <a name="basics"/>

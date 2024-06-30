@@ -1,5 +1,5 @@
 {
-   "name": "ngx-simple-state",
+   "name": "ngxss",
    "version": "1.0.0",
    "peerDependencies": {
       "@angular/common": "^16.2.0",
