@@ -1,12 +1,30 @@
 {
-  "name": "ngx-simple-state",
-  "version": "0.0.1",
-  "peerDependencies": {
-    "@angular/common": "^16.2.0",
-    "@angular/core": "^16.2.0"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
-  },
-  "sideEffects": false
+   "name": "ngx-simple-state",
+   "version": "1.0.0",
+   "peerDependencies": {
+      "@angular/common": "^16.2.0",
+      "@angular/core": "^16.2.0"
+   },
+   "dependencies": {
+      "tslib": "^2.3.0"
+   },
+   "description": "Simple state management for angular.",
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/Devin-Harris/ng-simple-state.git"
+   },
+   "keywords": [
+      "ngx",
+      "state",
+      "signal",
+      "angular",
+      "simple"
+   ],
+   "author": "Devin Harris",
+   "license": "ISC",
+   "bugs": {
+      "url": "https://github.com/Devin-Harris/ng-simple-state/issues"
+   },
+   "homepage": "https://github.com/Devin-Harris/ng-simple-state#readme",
+   "sideEffects": false
 }
