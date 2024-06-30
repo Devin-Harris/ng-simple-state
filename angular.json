@@ -3,23 +3,23 @@
    "version": 1,
    "newProjectRoot": "projects",
    "projects": {
-      "ngx-simple-state": {
+      "ngxss": {
          "projectType": "library",
-         "root": "projects/libs/ngx-simple-state",
-         "sourceRoot": "projects/libs/ngx-simple-state/src",
+         "root": "projects/libs/ngxss",
+         "sourceRoot": "projects/libs/ngxss/src",
          "prefix": "lib",
          "architect": {
             "build": {
                "builder": "@angular-devkit/build-angular:ng-packagr",
                "options": {
-                  "project": "projects/libs/ngx-simple-state/ng-package.json"
+                  "project": "projects/libs/ngxss/ng-package.json"
                },
                "configurations": {
                   "production": {
-                     "tsConfig": "projects/libs/ngx-simple-state/tsconfig.lib.prod.json"
+                     "tsConfig": "projects/libs/ngxss/tsconfig.lib.prod.json"
                   },
                   "development": {
-                     "tsConfig": "projects/libs/ngx-simple-state/tsconfig.lib.json"
+                     "tsConfig": "projects/libs/ngxss/tsconfig.lib.json"
                   }
                },
                "defaultConfiguration": "production"
@@ -27,7 +27,7 @@
             "test": {
                "builder": "@angular-devkit/build-angular:karma",
                "options": {
-                  "tsConfig": "projects/libs/ngx-simple-state/tsconfig.spec.json",
+                  "tsConfig": "projects/libs/ngxss/tsconfig.spec.json",
                   "polyfills": ["zone.js", "zone.js/testing"]
                }
             }
@@ -42,7 +42,7 @@
          },
          "root": "projects/apps/test-app",
          "sourceRoot": "projects/apps/test-app/src",
-         "prefix": "ngx-simple-state",
+         "prefix": "ngxss",
          "architect": {
             "build": {
                "builder": "@angular-devkit/build-angular:browser",

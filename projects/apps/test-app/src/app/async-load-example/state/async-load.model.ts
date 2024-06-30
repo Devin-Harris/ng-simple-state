@@ -1,16 +1,7 @@
 import { inject } from '@angular/core';
-import {
-   Action,
-   createAction,
-} from 'projects/libs/ngx-simple-state/src/lib/action';
-import {
-   Selector,
-   createSelector,
-} from 'projects/libs/ngx-simple-state/src/lib/selector';
-import {
-   Store,
-   createStore,
-} from 'projects/libs/ngx-simple-state/src/public-api';
+import { Action, createAction } from 'projects/libs/ngxss/src/lib/action';
+import { Selector, createSelector } from 'projects/libs/ngxss/src/lib/selector';
+import { Store, createStore } from 'projects/libs/ngxss/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallState,

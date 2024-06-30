@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { routes } from './app.config';
 
 @Component({
-   selector: 'ngx-simple-state-root',
+   selector: 'ngxss-root',
    templateUrl: './app.component.html',
    styleUrls: ['./app.component.scss'],
    standalone: true,

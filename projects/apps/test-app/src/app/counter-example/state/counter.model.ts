@@ -1,16 +1,10 @@
-import {
-   Action,
-   createAction,
-} from 'projects/libs/ngx-simple-state/src/lib/action';
-import {
-   Selector,
-   createSelector,
-} from 'projects/libs/ngx-simple-state/src/lib/selector';
+import { Action, createAction } from 'projects/libs/ngxss/src/lib/action';
+import { Selector, createSelector } from 'projects/libs/ngxss/src/lib/selector';
 import {
    Store,
    StoreInput,
    createStore,
-} from 'projects/libs/ngx-simple-state/src/lib/store-signal';
+} from 'projects/libs/ngxss/src/lib/store-signal';
 
 export type CounterStoreType = Store<{
    count: number;

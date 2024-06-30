@@ -1,14 +1,11 @@
 import { inject } from '@angular/core';
-import {
-   Action,
-   createAction,
-} from 'projects/libs/ngx-simple-state/src/lib/action';
+import { Action, createAction } from 'projects/libs/ngxss/src/lib/action';
 import {
    Store,
    StoreSignal,
    createStore,
    createStoreSlice,
-} from 'projects/libs/ngx-simple-state/src/public-api';
+} from 'projects/libs/ngxss/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallStateStoreType,

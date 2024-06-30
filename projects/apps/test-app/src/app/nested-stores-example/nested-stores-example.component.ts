@@ -4,7 +4,7 @@ import { names } from '../state/names';
 import { AsyncLoadWithCallStateStore } from './state/async-load.model';
 
 @Component({
-   selector: 'ngx-simple-state-nested-stores-example',
+   selector: 'ngxss-nested-stores-example',
    templateUrl: './nested-stores-example.component.html',
    styleUrls: [
       './nested-stores-example.component.scss',

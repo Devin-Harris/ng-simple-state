@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { SingletonVsNonSingletonComponent } from './singleton-vs-nonsingleton.component';
 
 @Component({
-   selector: 'ngx-simple-state-non-singleton-example',
+   selector: 'ngxss-non-singleton-example',
    templateUrl: './non-singleton-example.component.html',
    styleUrls: [
       './non-singleton-example.component.scss',

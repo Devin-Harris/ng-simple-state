@@ -3,7 +3,7 @@ import {
    Store,
    createAction,
    createStore,
-} from 'projects/libs/ngx-simple-state/src/public-api';
+} from 'projects/libs/ngxss/src/public-api';
 
 export type CounterStoreType = Store<{
    count: number;

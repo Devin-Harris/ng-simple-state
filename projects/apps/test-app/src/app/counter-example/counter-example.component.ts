@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import {
    StoreSignal,
    createStoreSlice,
-} from 'projects/libs/ngx-simple-state/src/public-api';
+} from 'projects/libs/ngxss/src/public-api';
 import {
    CounterStore,
    CounterStoreType,
@@ -11,7 +11,7 @@ import {
 } from './state/counter.model';
 
 @Component({
-   selector: 'ngx-simple-state-counter-example',
+   selector: 'ngxss-counter-example',
    templateUrl: './counter-example.component.html',
    styleUrls: [
       './counter-example.component.scss',

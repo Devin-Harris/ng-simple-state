@@ -4,7 +4,7 @@ import { names } from '../state/names';
 import { AsyncLoadStore } from './state/async-load.model';
 
 @Component({
-   selector: 'ngx-simple-state-async-load-example',
+   selector: 'ngxss-async-load-example',
    templateUrl: './async-load-example.component.html',
    styleUrls: [
       './async-load-example.component.scss',

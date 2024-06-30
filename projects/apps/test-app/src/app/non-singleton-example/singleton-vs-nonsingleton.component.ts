@@ -6,7 +6,7 @@ import {
 } from './state/singleton-counter.model';
 
 @Component({
-   selector: 'ngx-simple-state-singleton-vs-nonsingleton',
+   selector: 'ngxss-singleton-vs-nonsingleton',
    templateUrl: './singleton-vs-nonsingleton.component.html',
    styleUrls: [
       './singleton-vs-nonsingleton.component.scss',

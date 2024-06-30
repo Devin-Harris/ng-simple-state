@@ -6,7 +6,7 @@ import {
    StoreInput,
    createAction,
    createSelector,
-} from 'projects/libs/ngx-simple-state/src/public-api';
+} from 'projects/libs/ngxss/src/public-api';
 import { AsyncLoadApiService } from '../../async-load-example/state/async-load-api.service';
 
 export interface Error {

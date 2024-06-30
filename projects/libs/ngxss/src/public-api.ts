@@ -1,5 +1,5 @@
 /*
- * Public API Surface of ngx-simple-state
+ * Public API Surface of ngxss
  */
 
 export * from './lib/action';
