@@ -26,7 +26,6 @@ export class NestedStoresComponent {
    }
 
    onLoad() {
-      this.store.callStateStore.blah({});
       this.store.loadEntity({
          id: Math.floor(Math.random() * (names.length - 1)),
       });
