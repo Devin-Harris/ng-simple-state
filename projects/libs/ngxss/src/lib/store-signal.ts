@@ -12,9 +12,11 @@ import { Subject } from 'rxjs';
 import {
    InternalAction,
    NGX_SIMPLE_ACTION_TOKEN,
+   NGX_SIMPLE_LAST_ACTION_KEY_TOKEN,
    WithActionToken,
    isAction,
 } from './action';
+import { StoreLogger } from './logger';
 import { InternalSelector, isSelector } from './selector';
 
 type IsActionOnly<T, K extends keyof T> = T[K] extends InternalAction<any, any>
@@ -110,10 +112,14 @@ export type StoreSignal<T> = StoreSignalType<T> &
    StoreSignalHelperMethods<T> & {
       [NGX_SIMPLE_STORE_SLICE_TOKEN]: true;
       [NGX_SIMPLE_STORE_SLICE_INJECTOR_TOKEN]: WritableSignal<Injector | null>;
+      [NGX_SIMPLE_LAST_ACTION_KEY_TOKEN]: WritableSignal<
+         string | number | symbol | null
+      >;
    };
 
 export interface StoreSignalConfig {
    providedIn: Type<any> | 'root' | 'platform' | 'any' | null; // Pulled from angulars Injectable interface options
+   logger?: StoreLogger<any>;
 }
 
 export type StoreInput<T> = Pick<
@@ -138,7 +144,8 @@ export const NGX_SIMPLE_STORE_SLICE_INITIAL_VALUE_TOKEN = Symbol(
 
 export function createStoreSlice<InitialValueType extends {}>(
    intialValue: StoreInput<InitialValueType>,
-   injector: Injector | null = null
+   injector: Injector | null = null,
+   logger: StoreLogger<InitialValueType> | null = null
 ): StoreSignal<InitialValueType> {
    const keys = Object.keys(
       intialValue
@@ -152,6 +159,9 @@ export function createStoreSlice<InitialValueType extends {}>(
    store[NGX_SIMPLE_STORE_SLICE_INJECTOR_TOKEN] = signal<Injector | null>(
       injector
    );
+   store[NGX_SIMPLE_LAST_ACTION_KEY_TOKEN] = signal<
+      string | number | symbol | null
+   >(null);
 
    for (const k of keys) {
       const value = intialValue[k];
@@ -186,6 +196,7 @@ export function createStoreSlice<InitialValueType extends {}>(
                   (value as Function)(store, props);
                }
                subject.next(props);
+               store[NGX_SIMPLE_LAST_ACTION_KEY_TOKEN].set(k);
             },
             { [NGX_SIMPLE_ACTION_TOKEN]: true } as const
          );
@@ -261,7 +272,10 @@ export function createStore<InitialValueType extends {}>(
    @Injectable({ providedIn: config?.providedIn || null })
    class SignalStore {
       constructor(injector: Injector) {
-         Object.assign(this, createStoreSlice(intialValue, injector));
+         Object.assign(
+            this,
+            createStoreSlice(intialValue, injector, config?.logger ?? null)
+         );
       }
    }
 

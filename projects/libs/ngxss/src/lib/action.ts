@@ -8,6 +8,9 @@ export type InternalAction<InitialValueType, Props = undefined> = (
 ) => void;
 
 export const NGX_SIMPLE_ACTION_TOKEN = Symbol('NGX_SIMPLE_ACTION_TOKEN');
+export const NGX_SIMPLE_LAST_ACTION_KEY_TOKEN = Symbol(
+   'NGX_SIMPLE_LAST_ACTION_KEY_TOKEN'
+);
 
 export type WithActionToken<T> = T & {
    NGX_SIMPLE_ACTION_TOKEN?: true;

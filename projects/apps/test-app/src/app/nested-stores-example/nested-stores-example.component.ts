@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { DefaultStoreLogger } from 'projects/libs/ngxss/src/public-api';
 import { names } from '../state/names';
 import { AsyncLoadWithCallStateStore } from './state/async-load.model';
 
@@ -16,7 +17,10 @@ import { AsyncLoadWithCallStateStore } from './state/async-load.model';
 export class NestedStoresComponent {
    readonly store = inject(AsyncLoadWithCallStateStore);
 
+   logger = new DefaultStoreLogger(this.store);
+
    constructor() {
+      this.logger.start();
       this.store.$loadEntity.subscribe(({ id }) => {
          console.log(`Loading Entity ${id}`);
       });
