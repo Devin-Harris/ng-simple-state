@@ -4,9 +4,10 @@
    "scripts": {
       "ng": "ng",
       "start": "ng serve",
-      "build": "ng build",
+      "build": "ng build && npm run copy:build",
       "watch": "ng build --watch --configuration development",
-      "test": "ng test"
+      "test": "ng test",
+      "copy:build": "cp dist/devtools/main*.js ./dist/main.js & cp dist/devtools/polyfills*.js ./dist/polyfills.js & cp dist/devtools/runtime*.js ./dist/runtime.js & cp dist/angular-chrome-app/styles*.css ./dist/styles.css"
    },
    "private": true,
    "dependencies": {

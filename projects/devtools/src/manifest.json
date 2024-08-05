@@ -1,0 +1,16 @@
+{
+   "name": "NGXSS Devtools",
+   "version": "1.0.0",
+   "manifest_version": 3,
+   "devtools_page": "extension-binding/devtools.html",
+   "content_scripts": [
+      {
+         "matches": ["http://*/*", "https://*/*"],
+         "run_at": "document_idle",
+         "js": ["extension-binding/content_script.js"]
+      }
+   ],
+   "background": {
+      "service_worker": "extension-binding/background.js"
+   }
+}
