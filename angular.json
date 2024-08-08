@@ -128,30 +128,30 @@
                "style": "scss"
             }
          },
-         "root": "projects/devtools",
-         "sourceRoot": "projects/devtools/src",
+         "root": "projects/apps/devtools",
+         "sourceRoot": "projects/apps/devtools/src",
          "prefix": "app",
          "architect": {
             "build": {
                "builder": "@angular-devkit/build-angular:browser",
                "options": {
                   "outputPath": "dist/devtools",
-                  "index": "projects/devtools/src/index.html",
-                  "main": "projects/devtools/src/main.ts",
+                  "index": "projects/apps/devtools/src/index.html",
+                  "main": "projects/apps/devtools/src/main.ts",
                   "polyfills": ["zone.js"],
-                  "tsConfig": "projects/devtools/tsconfig.app.json",
+                  "tsConfig": "projects/apps/devtools/tsconfig.app.json",
                   "inlineStyleLanguage": "scss",
                   "assets": [
-                     "projects/devtools/src/favicon.ico",
-                     "projects/devtools/src/assets",
+                     "projects/apps/devtools/src/favicon.ico",
+                     "projects/apps/devtools/src/assets",
 
-                     "projects/devtools/src/manifest.json",
-                     "projects/devtools/src/extension-binding/devtools.html",
-                     "projects/devtools/src/extension-binding/devtools.js",
-                     "projects/devtools/src/extension-binding/content_script.js",
-                     "projects/devtools/src/extension-binding/background.js"
+                     "projects/apps/devtools/src/manifest.json",
+                     "projects/apps/devtools/src/extension-binding/devtools.html",
+                     "projects/apps/devtools/src/extension-binding/devtools.js",
+                     "projects/apps/devtools/src/extension-binding/content_script.js",
+                     "projects/apps/devtools/src/extension-binding/background.js"
                   ],
-                  "styles": ["projects/devtools/src/styles.scss"],
+                  "styles": ["projects/apps/devtools/src/styles.scss"],
                   "scripts": []
                },
                "configurations": {
@@ -198,13 +198,13 @@
                "builder": "@angular-devkit/build-angular:karma",
                "options": {
                   "polyfills": ["zone.js", "zone.js/testing"],
-                  "tsConfig": "projects/devtools/tsconfig.spec.json",
+                  "tsConfig": "projects/apps/devtools/tsconfig.spec.json",
                   "inlineStyleLanguage": "scss",
                   "assets": [
-                     "projects/devtools/src/favicon.ico",
-                     "projects/devtools/src/assets"
+                     "projects/apps/devtools/src/favicon.ico",
+                     "projects/apps/devtools/src/assets"
                   ],
-                  "styles": ["projects/devtools/src/styles.scss"],
+                  "styles": ["projects/apps/devtools/src/styles.scss"],
                   "scripts": []
                }
             }
