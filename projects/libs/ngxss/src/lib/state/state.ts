@@ -2,21 +2,11 @@ import {
    computed,
    Injectable,
    Injector,
-   runInInjectionContext,
    signal,
    Type,
    WritableSignal,
 } from '@angular/core';
-import { Subject } from 'rxjs';
-import { isAction } from '../actions/action';
-import {
-   NGX_SIMPLE_ACTION_SUBJECT_TOKEN,
-   NGX_SIMPLE_ACTION_TOKEN,
-} from '../actions/tokens/action-tokens';
-import {
-   WithActionSubjectToken,
-   WithActionToken,
-} from '../actions/types/action-types';
+import { buildActionFn, isAction } from '../actions/action';
 import { isSelector } from '../selectors/selector';
 import {
    NGX_SIMPLE_STATE_INJECTOR_TOKEN,
@@ -60,29 +50,7 @@ export function createState<InitialValueType extends {}>(
       if (isSelector(value)) {
          state[k] = computed(() => value(state));
       } else if (isAction(value)) {
-         const subject$ = signal<Subject<any> | null>(null);
-
-         const fn: WithActionSubjectToken<WithActionToken<Function>> =
-            Object.assign(
-               (props?: any) => {
-                  const stateInjector =
-                     state[NGX_SIMPLE_STATE_INJECTOR_TOKEN]();
-                  if (stateInjector) {
-                     runInInjectionContext(stateInjector, () => {
-                        (value as Function)(state, props);
-                     });
-                  } else {
-                     (value as Function)(state, props);
-                  }
-                  subject$()?.next(props);
-               },
-               {
-                  [NGX_SIMPLE_ACTION_TOKEN]: true,
-                  [NGX_SIMPLE_ACTION_SUBJECT_TOKEN]: subject$,
-               } as const
-            );
-
-         state[k] = fn;
+         state[k] = buildActionFn(state, value);
       } else if (isState(value)) {
          value[NGX_SIMPLE_STATE_INJECTOR_TOKEN].set(injector);
          state[k] = value;
