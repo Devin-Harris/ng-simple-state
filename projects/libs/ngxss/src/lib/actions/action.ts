@@ -24,6 +24,11 @@ export function isAction<T, R>(fn: any): fn is Action<T, R> {
 }
 
 export function actionToSubject<T, P>(fn: ActionType<T, P>): Subject<P> {
-   // @ts-ignore
-   return fn[NGX_SIMPLE_ACTION_SUBJECT_TOKEN];
+   const subject$ = fn[NGX_SIMPLE_ACTION_SUBJECT_TOKEN];
+   let subject = subject$();
+   if (!subject) {
+      subject = new Subject<P>();
+      subject$.set(subject);
+   }
+   return subject;
 }

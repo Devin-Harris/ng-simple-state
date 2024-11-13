@@ -13,7 +13,10 @@ import {
    NGX_SIMPLE_ACTION_SUBJECT_TOKEN,
    NGX_SIMPLE_ACTION_TOKEN,
 } from '../actions/tokens/action-tokens';
-import { WithActionToken } from '../actions/types/action-types';
+import {
+   WithActionSubjectToken,
+   WithActionToken,
+} from '../actions/types/action-types';
 import { isSelector } from '../selectors/selector';
 import {
    NGX_SIMPLE_STATE_INJECTOR_TOKEN,
@@ -57,25 +60,27 @@ export function createState<InitialValueType extends {}>(
       if (isSelector(value)) {
          state[k] = computed(() => value(state));
       } else if (isAction(value)) {
-         const subject: WithActionToken<Subject<any>> = new Subject<any>();
+         const subject$ = signal<Subject<any> | null>(null);
 
-         const fn: WithActionToken<Function> = Object.assign(
-            (props?: any) => {
-               const stateInjector = state[NGX_SIMPLE_STATE_INJECTOR_TOKEN]();
-               if (stateInjector) {
-                  runInInjectionContext(stateInjector, () => {
+         const fn: WithActionSubjectToken<WithActionToken<Function>> =
+            Object.assign(
+               (props?: any) => {
+                  const stateInjector =
+                     state[NGX_SIMPLE_STATE_INJECTOR_TOKEN]();
+                  if (stateInjector) {
+                     runInInjectionContext(stateInjector, () => {
+                        (value as Function)(state, props);
+                     });
+                  } else {
                      (value as Function)(state, props);
-                  });
-               } else {
-                  (value as Function)(state, props);
-               }
-               subject.next(props);
-            },
-            {
-               [NGX_SIMPLE_ACTION_TOKEN]: true,
-               [NGX_SIMPLE_ACTION_SUBJECT_TOKEN]: subject,
-            } as const
-         );
+                  }
+                  subject$()?.next(props);
+               },
+               {
+                  [NGX_SIMPLE_ACTION_TOKEN]: true,
+                  [NGX_SIMPLE_ACTION_SUBJECT_TOKEN]: subject$,
+               } as const
+            );
 
          state[k] = fn;
       } else if (isState(value)) {

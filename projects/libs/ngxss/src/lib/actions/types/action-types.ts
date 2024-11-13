@@ -1,3 +1,4 @@
+import { WritableSignal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { StateSignal } from '../../state/types/state-types';
 import {
@@ -22,10 +23,11 @@ export type CreateAction<T, P> = (P extends undefined
    [NGX_SIMPLE_ACTION_TOKEN]?: true;
 };
 
-export type ActionType<T, P> = P extends undefined
-   ? () => InternalAction<T, undefined> & {
-        [NGX_SIMPLE_ACTION_SUBJECT_TOKEN]: Subject<any>;
-     }
-   : (props: P) => InternalAction<T, P> & {
-        [NGX_SIMPLE_ACTION_SUBJECT_TOKEN]: Subject<P>;
-     };
+export type WithActionSubjectToken<P> = {
+   [NGX_SIMPLE_ACTION_SUBJECT_TOKEN]: WritableSignal<Subject<P> | null>;
+};
+
+export type ActionType<T, P> = (P extends undefined
+   ? () => InternalAction<T, undefined>
+   : (props: P) => InternalAction<T, P>) &
+   WithActionSubjectToken<P>;
