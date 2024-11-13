@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import {
-   StoreSignal,
-   createStoreSlice,
+   actionToSubject,
+   createState,
+   StateSignal,
 } from 'projects/libs/ngxss/src/public-api';
 import {
-   CounterStore,
-   CounterStoreType,
-   counterStoreInput,
+   CounterState,
+   counterStateInput,
+   CounterStateType,
 } from './state/counter.model';
 
 @Component({
@@ -21,36 +22,36 @@ import {
    imports: [CommonModule],
 })
 export class CounterExampleComponent {
-   readonly store = inject(CounterStore);
+   readonly globalState = CounterState;
 
-   readonly componentLevelStore: StoreSignal<CounterStoreType>;
+   readonly componentLevelState: StateSignal<CounterStateType>;
 
    constructor() {
-      this.componentLevelStore =
-         createStoreSlice<CounterStoreType>(counterStoreInput);
+      this.componentLevelState =
+         createState<CounterStateType>(counterStateInput);
 
-      this.store.$setCount.subscribe((t) => {
-         console.log('Global Store: setCount called');
+      actionToSubject(this.globalState.setCount).subscribe((t) => {
+         console.log('Global Store: setCount called', t);
       });
-      this.store.$setCount.subscribe((t) => {
-         console.log('Component Store: setCount called');
+      actionToSubject(this.componentLevelState.setCount).subscribe((t) => {
+         console.log('Component Store: setCount called', t);
       });
    }
 
    onIncrement() {
-      this.store.increment();
-      this.componentLevelStore.increment();
+      this.globalState.increment();
+      this.componentLevelState.increment();
    }
    onDecrement() {
-      this.store.decrement();
-      this.componentLevelStore.decrement();
+      this.globalState.decrement();
+      this.componentLevelState.decrement();
    }
    onReset() {
-      this.store.reset();
-      this.componentLevelStore.reset();
+      this.globalState.reset();
+      this.componentLevelState.reset();
    }
    onSetTo100() {
-      this.store.setCount(100);
-      this.componentLevelStore.setCount(100);
+      this.globalState.setCount(100);
+      this.componentLevelState.setCount(100);
    }
 }

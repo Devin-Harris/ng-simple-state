@@ -1,10 +1,11 @@
 import { inject } from '@angular/core';
-import { Action, createAction } from 'projects/libs/ngxss/src/lib/action';
 import {
-   Store,
-   StoreSignal,
-   createStore,
-   createStoreSlice,
+   Action,
+   State,
+   StateSignal,
+   createAction,
+   createInjectableState,
+   createState,
 } from 'projects/libs/ngxss/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
@@ -13,9 +14,9 @@ import {
    callStateStoreInput,
 } from './call-state.model';
 
-export type NestedAsyncStoreType = Store<{
+export type NestedAsyncStoreType = State<{
    // Store slices
-   callStateStore: StoreSignal<CallStateStoreType>;
+   callStateStore: StateSignal<CallStateStoreType>;
 
    // Root State
    entityName: string | null;
@@ -27,38 +28,39 @@ export type NestedAsyncStoreType = Store<{
    loadEntityFailure: Action<{ error: Error }>;
 }>;
 
-export const AsyncLoadWithCallStateStore = createStore<NestedAsyncStoreType>(
-   {
-      // Store slices
-      callStateStore: createStoreSlice(callStateStoreInput),
+export const AsyncLoadWithCallStateStore =
+   createInjectableState<NestedAsyncStoreType>(
+      {
+         // Store slices
+         callStateStore: createState(callStateStoreInput),
 
-      // Root State
-      entityName: null,
-      entityId: null,
+         // Root State
+         entityName: null,
+         entityId: null,
 
-      // Actions
-      loadEntity: createAction(
-         async (state, props, apiService = inject(AsyncLoadApiService)) => {
-            state.callStateStore.setLoading();
-            try {
-               const response = await apiService.getEntity(props.id);
-               return state.loadEntitySuccess(response);
-            } catch (error: any) {
-               return state.loadEntityFailure({ error });
+         // Actions
+         loadEntity: createAction(
+            async (state, props, apiService = inject(AsyncLoadApiService)) => {
+               state.callStateStore.setLoading();
+               try {
+                  const response = await apiService.getEntity(props.id);
+                  return state.loadEntitySuccess(response);
+               } catch (error: any) {
+                  return state.loadEntityFailure({ error });
+               }
             }
-         }
-      ),
-      loadEntitySuccess: createAction((state, props) => {
-         state.patch({
-            ...props,
-            callStateStore: { callState: LoadingState.Loaded },
-         });
-      }),
-      loadEntityFailure: createAction((state, { error }) => {
-         state.callStateStore.setError({ error });
-      }),
-   },
-   {
-      providedIn: 'root',
-   }
-);
+         ),
+         loadEntitySuccess: createAction((state, props) => {
+            state.patch({
+               ...props,
+               callStateStore: { callState: LoadingState.Loaded },
+            });
+         }),
+         loadEntityFailure: createAction((state, { error }) => {
+            state.callStateStore.setError({ error });
+         }),
+      },
+      {
+         providedIn: 'root',
+      }
+   );

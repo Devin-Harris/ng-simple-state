@@ -1,12 +1,14 @@
-import { Action, createAction } from 'projects/libs/ngxss/src/lib/action';
-import { Selector, createSelector } from 'projects/libs/ngxss/src/lib/selector';
 import {
-   Store,
-   StoreInput,
-   createStore,
-} from 'projects/libs/ngxss/src/lib/store-signal';
+   Action,
+   createAction,
+   createSelector,
+   createState,
+   Selector,
+   State,
+   StateInput,
+} from 'projects/libs/ngxss/src/public-api';
 
-export type CounterStoreType = Store<{
+export type CounterStateType = State<{
    count: number;
 
    setCount: Action<number>;
@@ -19,7 +21,7 @@ export type CounterStoreType = Store<{
    between5and10: Selector<boolean>;
 }>;
 
-export const counterStoreInput: StoreInput<CounterStoreType> = {
+export const counterStateInput: StateInput<CounterStateType> = {
    count: 0,
 
    /**
@@ -48,6 +50,4 @@ export const counterStoreInput: StoreInput<CounterStoreType> = {
    ),
 };
 
-export const CounterStore = createStore(counterStoreInput, {
-   providedIn: 'root',
-});
+export const CounterState = createState(counterStateInput);

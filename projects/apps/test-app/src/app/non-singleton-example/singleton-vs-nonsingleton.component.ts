@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import {
-   NonSingletonCounterStore,
-   SingletonCounterStore,
+   NonSingletonCounterState,
+   SingletonCounterState,
 } from './state/singleton-counter.model';
 
 @Component({
@@ -14,14 +14,14 @@ import {
    ],
    standalone: true,
    imports: [CommonModule],
-   providers: [NonSingletonCounterStore],
+   providers: [NonSingletonCounterState],
 })
 export class SingletonVsNonSingletonComponent {
    @Input() id: number = 0;
 
    @Output() removeInstance = new EventEmitter<void>();
 
-   readonly singletonStore = inject(SingletonCounterStore);
+   readonly singletonState = inject(SingletonCounterState);
 
-   readonly nonSingletonStore = inject(NonSingletonCounterStore);
+   readonly nonSingletonState = inject(NonSingletonCounterState);
 }
