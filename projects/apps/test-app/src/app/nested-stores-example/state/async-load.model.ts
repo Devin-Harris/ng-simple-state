@@ -9,14 +9,14 @@ import {
 } from 'projects/libs/ngxss/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
-   CallStateStoreType,
+   CallStateStateType,
    LoadingState,
-   callStateStoreInput,
+   callStateStateInput,
 } from './call-state.model';
 
-export type NestedAsyncStoreType = State<{
-   // Store slices
-   callStateStore: StateSignal<CallStateStoreType>;
+export type NestedAsyncStateType = State<{
+   // State slices
+   callStateStore: StateSignal<CallStateStateType>;
 
    // Root State
    entityName: string | null;
@@ -29,10 +29,10 @@ export type NestedAsyncStoreType = State<{
 }>;
 
 export const AsyncLoadWithCallStateStore =
-   createInjectableState<NestedAsyncStoreType>(
+   createInjectableState<NestedAsyncStateType>(
       {
          // Store slices
-         callStateStore: createState(callStateStoreInput),
+         callStateStore: createState(callStateStateInput),
 
          // Root State
          entityName: null,

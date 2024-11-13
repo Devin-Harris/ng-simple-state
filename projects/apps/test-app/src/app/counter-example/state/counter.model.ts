@@ -27,10 +27,10 @@ export const counterStateInput: StateInput<CounterStateType> = {
    /**
     * Actions should be defined with the createAction method.
     * This method puts a special token on the function objects which is used
-    * when building the store to automatically impose the state objects when calling
-    * the Actions. It also creates another field with a $ prefix which is a subject of the given
-    * Action. This is useful when you want to use rxjs or dependency injection to
-    * trigger other events from a interaction.
+    * when building the state object to automatically impose the inner state objects when calling
+    * the Actions. Actions also provide a subject of the given Action which you can retrieve
+    * by using the actionToSubject method. This is useful when you want to use rxjs or
+    * dependency injection to trigger other events from a interaction.
     */
    setCount: createAction((state, count) => state.count.set(count)),
    increment: createAction((state) => state.count.update((c) => c + 1)),
@@ -40,7 +40,7 @@ export const counterStateInput: StateInput<CounterStateType> = {
    /**
     * Selectors should be defined with the createSelector method.
     * This method puts a special token on the function objects which is used
-    * when building the store to force the selectors to be readonly signals
+    * when building the store to force the selectors to be readonly computed signals
     * instead of writable ones.
     */
    lessThan5: createSelector((state) => state.count() < 5),

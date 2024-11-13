@@ -16,7 +16,7 @@ import {
    LoadingState,
 } from './async-load-helper.model';
 
-export type AsyncStoreType = State<{
+export type AsyncStateType = State<{
    entityName: string | null;
    entityId: number | null;
    callState: CallState;
@@ -29,7 +29,7 @@ export type AsyncStoreType = State<{
    error: Selector<Error | null>;
 }>;
 
-export const AsyncLoadStore = createInjectableState<AsyncStoreType>(
+export const AsyncLoadState = createInjectableState<AsyncStateType>(
    {
       // Root State
       callState: LoadingState.Init,

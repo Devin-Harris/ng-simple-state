@@ -21,7 +21,7 @@ export function isErrorState(callstate: CallState): callstate is ErrorState {
    return !!Object.hasOwn(callstate as object, 'error');
 }
 
-export type CallStateStoreType = State<{
+export type CallStateStateType = State<{
    callState: CallState;
 
    setLoaded: Action;
@@ -32,7 +32,7 @@ export type CallStateStoreType = State<{
    error: Selector<Error | null>;
 }>;
 
-export const callStateStoreInput: StateInput<CallStateStoreType> = {
+export const callStateStateInput: StateInput<CallStateStateType> = {
    callState: LoadingState.Init,
 
    setLoaded: createAction((state) => {
