@@ -314,9 +314,9 @@ export class AsyncLoadComponent {
 
 ### Nested Stores Example
 
-Having the ability to nest state objects is also possible with ngx-simple-state. This can be useful in a case where we want to keep track the of `CallState` for asynchronous interactions and we have multiple different slices of state for different entities in our application. Redefining all of the callstate related selectors, root fields, and actions could be cumbersome so nesting stores is a great opportunity to reduce code duplication.
+Having the ability to nest state objects is also possible with ngx-simple-state. This can be useful in a case where we want to keep track of the `CallState` for asynchronous interactions and we have multiple different slices of state for different entities in our application. Redefining all of the callstate related selectors, root fields, and actions could be cumbersome so nesting stores is a great opportunity to reduce code duplication.
 
-For this we need to create 2 state inputs. Lets start with the CallStateStore input:
+For this we need to create 2 state inputs. Lets start with the CallStateState input:
 
 ```typescript
 export type CallStateStateType = State<{
@@ -381,7 +381,7 @@ Building the actual state object then looks like this:
 export const AsyncLoadWithCallStateStore =
    createInjectableState<NestedAsyncStateType>(
       {
-         // Store slices
+         // State slices
          callStateStore: createState(callStateStateInput),
 
          // Root State
