@@ -9,10 +9,15 @@ import {
 import { buildActionFn, isAction } from '../actions/action';
 import { isSelector } from '../selectors/selector';
 import {
+   buildPatchFn,
+   buildResetFn,
+   buildViewFn,
+   isHelperMethod,
+} from './state-helper-methods';
+import {
    NGX_SIMPLE_STATE_INJECTOR_TOKEN,
    NGX_SIMPLE_STATE_TOKEN,
 } from './tokens/state-tokens';
-import { StateSignalPatchParam } from './types/helper-method-types';
 import {
    InjectableConfig,
    StateInput,
@@ -64,34 +69,19 @@ export function createState<InitialValueType extends {}>(
          `Key \`patch\` is trying to be set multiple times within this state`
       );
    }
-   state.patch = (value: StateSignalPatchParam<InitialValueType>) => {
-      const keys = Object.keys(
-         value
-      ) as (keyof StateSignalPatchParam<InitialValueType>)[];
-      for (const k of keys) {
-         const v = value[k] as InitialValueType[keyof InitialValueType];
-
-         if (isSelector(state[k])) {
-            throw new Error('Patching on selector values is not allowed');
-         }
-         if (isAction(state[k])) {
-            throw new Error('Patching on action values is not allowed');
-         }
-         if (isState(state[k])) {
-            // @ts-ignore
-            state[k].patch(v);
-            continue;
-         }
-
-         (state[k] as WritableSignal<typeof v>).set(v);
-      }
-   };
+   state.patch = buildPatchFn(state);
    if (state['view']) {
       throw new Error(
          `Key \`view\` is trying to be set multiple times within this state`
       );
    }
-   state.view = computed(() => stateView(state));
+   state.view = buildViewFn(state);
+   if (state['reset']) {
+      throw new Error(
+         `Key \`reset\` is trying to be set multiple times within this state`
+      );
+   }
+   state.reset = buildResetFn(state, intialValue);
 
    Object.assign(state, {
       [NGX_SIMPLE_STATE_TOKEN]: true,
@@ -126,23 +116,26 @@ export function isState<T>(obj: any): obj is StateSignal<T> {
    return obj && obj[NGX_SIMPLE_STATE_TOKEN];
 }
 
+export function isInjector<T>(
+   obj: any
+): obj is WritableSignal<Injector | null> {
+   return obj && obj[NGX_SIMPLE_STATE_INJECTOR_TOKEN];
+}
+
 export function stateView<
    T extends StateSignal<InitialValueType>,
    InitialValueType
 >(state: T) {
-   const excludedKeys = new Set<keyof T>(['patch', 'view']);
    const o: InitialValueType = Object.create(null);
    const keys = Object.keys(state) as (keyof T)[];
-   keys
-      .filter((k) => !excludedKeys.has(k))
-      .forEach((k) => {
-         if (isState(state[k])) {
-            // @ts-ignore
-            o[k] = stateView(state[k]);
-         } else if (!isAction(state[k])) {
-            // @ts-ignore
-            o[k] = state[k]();
-         }
-      });
+   keys.forEach((k) => {
+      if (isState(state[k])) {
+         // @ts-ignore
+         o[k] = stateView(state[k]);
+      } else if (!isAction(state[k]) && !isHelperMethod(state[k])) {
+         // @ts-ignore
+         o[k] = state[k]();
+      }
+   });
    return o;
 }

@@ -33,4 +33,12 @@ export class NestedStoresComponent {
          id: Math.floor(Math.random() * (names.length - 1)),
       });
    }
+
+   onReset() {
+      this.store.reset();
+   }
+
+   onResetCallState() {
+      this.store.callStateStore.reset();
+   }
 }

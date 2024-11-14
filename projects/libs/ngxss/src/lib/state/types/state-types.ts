@@ -38,7 +38,7 @@ type StateSignalType<T> = {
       : T[x] extends InternalAction<any, infer P>
       ? ActionType<T, P>
       : T[x] extends StateSignal<State<infer T2>>
-      ? StateSignalType<T2>
+      ? StateSignal<T2>
       : WritableSignal<T[x]>;
 };
 

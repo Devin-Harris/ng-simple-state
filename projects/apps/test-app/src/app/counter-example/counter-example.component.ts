@@ -46,9 +46,9 @@ export class CounterExampleComponent {
       this.globalState.decrement();
       this.componentLevelState.decrement();
    }
-   onReset() {
-      this.globalState.reset();
-      this.componentLevelState.reset();
+   onResetCount() {
+      this.globalState.resetCount();
+      this.componentLevelState.resetCount();
    }
    onSetTo100() {
       this.globalState.setCount(100);

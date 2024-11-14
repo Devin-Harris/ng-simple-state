@@ -33,4 +33,7 @@ export class AsyncLoadComponent {
          id: Math.floor(Math.random() * (names.length - 1)),
       });
    }
+   onReset() {
+      this.state.reset();
+   }
 }

@@ -14,7 +14,7 @@ export type CounterStateType = State<{
    setCount: Action<number>;
    increment: Action;
    decrement: Action;
-   reset: Action;
+   resetCount: Action;
 
    lessThan5: Selector<boolean>;
    lessThan10: Selector<boolean>;
@@ -35,7 +35,7 @@ export const counterStateInput: StateInput<CounterStateType> = {
    setCount: createAction((state, count) => state.count.set(count)),
    increment: createAction((state) => state.count.update((c) => c + 1)),
    decrement: createAction((state) => state.count.update((c) => c - 1)),
-   reset: createAction((state) => state.setCount(0)),
+   resetCount: createAction((state) => state.setCount(0)),
 
    /**
     * Selectors should be defined with the createSelector method.
