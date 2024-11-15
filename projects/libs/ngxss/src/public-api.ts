@@ -10,7 +10,8 @@ export * from './lib/selectors/selector';
 export * from './lib/selectors/tokens/selector-tokens';
 export * from './lib/selectors/types/selector-types';
 
-export * from './lib/state/state';
-export * from './lib/state/tokens/state-tokens';
-export * from './lib/state/types/helper-method-types';
-export * from './lib/state/types/state-types';
+export * from './lib/store/store';
+export * from './lib/store/store-helper-methods';
+export * from './lib/store/tokens/store-tokens';
+export * from './lib/store/types/helper-method-types';
+export * from './lib/store/types/store-types';

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { actionToSubject } from 'projects/libs/ngxss/src/public-api';
 import { names } from '../state/names';
-import { AsyncLoadState } from './state/async-load.model';
+import { AsyncLoadStore } from './state/async-load.model';
 
 @Component({
    selector: 'ngxss-async-load-example',
@@ -15,13 +15,13 @@ import { AsyncLoadState } from './state/async-load.model';
    imports: [CommonModule],
 })
 export class AsyncLoadComponent {
-   readonly state = inject(AsyncLoadState);
+   readonly store = inject(AsyncLoadStore);
 
    constructor() {
-      actionToSubject(this.state.loadEntity).subscribe(({ id }) => {
+      actionToSubject(this.store.loadEntity).subscribe(({ id }) => {
          console.log(`Loading Entity ${id}`);
       });
-      actionToSubject(this.state.loadEntitySuccess).subscribe(
+      actionToSubject(this.store.loadEntitySuccess).subscribe(
          ({ entityId, entityName }) => {
             console.log(`Entity ${entityId} (${entityName}) has loaded`);
          }
@@ -29,11 +29,11 @@ export class AsyncLoadComponent {
    }
 
    onLoad() {
-      this.state.loadEntity({
+      this.store.loadEntity({
          id: Math.floor(Math.random() * (names.length - 1)),
       });
    }
    onReset() {
-      this.state.reset();
+      this.store.reset();
    }
 }

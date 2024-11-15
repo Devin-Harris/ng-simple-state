@@ -1,12 +1,12 @@
 import { inject } from '@angular/core';
 
+import { store } from 'projects/libs/ngxss/src/lib/store/store';
+import { Store } from 'projects/libs/ngxss/src/lib/store/types/store-types';
 import {
    Action,
    createAction,
-   createInjectableState,
    createSelector,
    Selector,
-   State,
 } from 'projects/libs/ngxss/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
@@ -16,7 +16,7 @@ import {
    LoadingState,
 } from './async-load-helper.model';
 
-export type AsyncStateType = State<{
+export type AsyncStoreType = Store<{
    entityName: string | null;
    entityId: number | null;
    callState: CallState;
@@ -28,8 +28,7 @@ export type AsyncStateType = State<{
    loading: Selector<boolean>;
    error: Selector<Error | null>;
 }>;
-
-export const AsyncLoadState = createInjectableState<AsyncStateType>(
+export const AsyncLoadStore = store.injectable<AsyncStoreType>(
    {
       // Root State
       callState: LoadingState.Init,
