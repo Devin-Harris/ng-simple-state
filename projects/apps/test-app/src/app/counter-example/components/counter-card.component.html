@@ -1,0 +1,20 @@
+<div class="header">
+   <h2>{{ label }} Instance</h2>
+</div>
+
+<br />
+
+<div class="state-views">
+   <div class="state-container">
+      <div class="top">
+         <label>State View</label>
+         <pre>{{ store.view() | json }}</pre>
+      </div>
+      <div class="buttons">
+         <button (click)="onIncrement()">Increment Count</button>
+         <button (click)="onDecrement()">Decrement Count</button>
+         <button (click)="onResetCount()">Reset Count</button>
+         <button (click)="onSetTo100()">Set Count to 100</button>
+      </div>
+   </div>
+</div>

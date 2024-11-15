@@ -1,0 +1,42 @@
+@use '../../../styles/colors';
+
+:host {
+   border: 1px solid white;
+   border-radius: 0.25em;
+   padding: 0.5em;
+   position: relative;
+   display: flex;
+   flex-direction: column;
+   .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+   }
+
+   .state-views {
+      flex-grow: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: 1em;
+      width: 100%;
+      .state-container {
+         display: flex;
+         flex-direction: column;
+         justify-content: flex-end;
+         height: 100%;
+         .top {
+            label {
+               font-weight: bold;
+            }
+            pre {
+               margin: 0.5em 0;
+            }
+         }
+         .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+         }
+      }
+   }
+}

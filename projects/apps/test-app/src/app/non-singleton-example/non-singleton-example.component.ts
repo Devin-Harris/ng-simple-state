@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { SingletonVsNonSingletonComponent } from './singleton-vs-nonsingleton.component';
+import { SingletonVsNonSingletonComponent } from './components/singleton-vs-nonsingleton.component';
 
 @Component({
    selector: 'ngxss-non-singleton-example',

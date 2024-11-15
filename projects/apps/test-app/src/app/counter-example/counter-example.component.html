@@ -1,12 +1,18 @@
 <div class="example-page">
    <h2>Counter Example</h2>
-   <div class="state-container">
-      <label>State View</label>
-      <pre>{{ globalStore.view() | json }}</pre>
-   </div>
 
-   <button (click)="onIncrement()">Increment Count</button>
-   <button (click)="onDecrement()">Decrement Count</button>
-   <button (click)="onResetCount()">Reset Count</button>
-   <button (click)="onSetTo100()">Set Count to 100</button>
+   <br />
+
+   <div class="instances">
+      <ngxss-counter-card
+         label="Global 1"
+         [store]="globalStore"
+      ></ngxss-counter-card>
+      <ngxss-counter-card
+         label="Global 2"
+         [store]="globalStore"
+      ></ngxss-counter-card>
+      <ngxss-counter-card label="Component Level 1"></ngxss-counter-card>
+      <ngxss-counter-card label="Component Level 2"></ngxss-counter-card>
+   </div>
 </div>

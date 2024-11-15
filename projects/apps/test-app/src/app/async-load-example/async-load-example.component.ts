@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { actionToSubject } from 'projects/libs/ngxss/src/public-api';
 import { names } from '../state/names';
 import { AsyncLoadStore } from './state/async-load.model';
 
@@ -18,10 +17,10 @@ export class AsyncLoadComponent {
    readonly store = inject(AsyncLoadStore);
 
    constructor() {
-      actionToSubject(this.store.loadEntity).subscribe(({ id }) => {
+      this.store.loadEntity.subject.subscribe(({ id }) => {
          console.log(`Loading Entity ${id}`);
       });
-      actionToSubject(this.store.loadEntitySuccess).subscribe(
+      this.store.loadEntitySuccess.subject.subscribe(
          ({ entityId, entityName }) => {
             console.log(`Entity ${entityId} (${entityName}) has loaded`);
          }

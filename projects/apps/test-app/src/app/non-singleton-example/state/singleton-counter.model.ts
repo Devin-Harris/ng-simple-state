@@ -10,16 +10,16 @@ export type CounterStoreType = Store<{
    increment: Action;
 }>;
 
-export const counterStateInput: CounterStoreType = {
+export const counterStoreInput: CounterStoreType = {
    count: 0,
    increment: createAction((state) => state.count.update((c) => c + 1)),
 };
 
-export const SingletonCounterState = store.injectable<CounterStoreType>(
-   counterStateInput,
+export const SingletonCounterStore = store.injectable<CounterStoreType>(
+   counterStoreInput,
    {
       providedIn: 'root',
    }
 );
-export const NonSingletonCounterState =
-   store.injectable<CounterStoreType>(counterStateInput);
+export const NonSingletonCounterStore =
+   store.injectable<CounterStoreType>(counterStoreInput);
