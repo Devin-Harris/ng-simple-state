@@ -32,7 +32,7 @@ export type CallStateStoreType = Store<{
    error: Selector<Error | null>;
 }>;
 
-export const callStateStateInput: StoreInput<CallStateStoreType> = {
+export const callStateStoreInput: StoreInput<CallStateStoreType> = {
    callState: LoadingState.Init,
 
    setLoaded: createAction((state) => {

@@ -10,7 +10,7 @@ import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallStateStoreType,
    LoadingState,
-   callStateStateInput,
+   callStateStoreInput,
 } from './call-state.model';
 
 export type NestedAsyncStateType = Store<{
@@ -31,7 +31,7 @@ export const AsyncLoadWithCallStateStore =
    store.injectable<NestedAsyncStateType>(
       {
          // Store slices
-         callStateStore: store(callStateStateInput),
+         callStateStore: store(callStateStoreInput),
 
          // Root State
          entityName: null,
