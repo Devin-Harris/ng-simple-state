@@ -1,6 +1,6 @@
 import { WritableSignal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { StateSignal } from '../../state/types/state-types';
+import { StoreSignal } from '../../../public-api';
 import {
    NGX_SIMPLE_ACTION_SUBJECT_TOKEN,
    NGX_SIMPLE_ACTION_TOKEN,
@@ -9,7 +9,7 @@ import {
 export type Action<Props = undefined, T = {}> = InternalAction<T, Props>;
 
 export type InternalAction<InitialValueType, Props = undefined> = (
-   state: StateSignal<InitialValueType>,
+   store: StoreSignal<InitialValueType>,
    props: Props
 ) => void;
 
@@ -18,8 +18,8 @@ export type WithActionToken<T> = T & {
 };
 
 export type CreateAction<T, P> = (P extends undefined
-   ? (state: StateSignal<T>) => void
-   : (state: StateSignal<T>, props: P) => void) & {
+   ? (store: StoreSignal<T>) => void
+   : (store: StoreSignal<T>, props: P) => void) & {
    [NGX_SIMPLE_ACTION_TOKEN]?: true;
 };
 

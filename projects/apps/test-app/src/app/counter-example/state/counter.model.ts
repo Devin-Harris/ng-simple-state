@@ -2,13 +2,13 @@ import {
    Action,
    createAction,
    createSelector,
-   createState,
    Selector,
-   State,
-   StateInput,
+   store,
+   Store,
+   StoreInput,
 } from 'projects/libs/ngxss/src/public-api';
 
-export type CounterStateType = State<{
+export type CounterStoreType = Store<{
    count: number;
 
    setCount: Action<number>;
@@ -21,7 +21,7 @@ export type CounterStateType = State<{
    between5and10: Selector<boolean>;
 }>;
 
-export const counterStateInput: StateInput<CounterStateType> = {
+export const counterStoreInput: StoreInput<CounterStoreType> = {
    count: 0,
 
    /**
@@ -50,4 +50,4 @@ export const counterStateInput: StateInput<CounterStateType> = {
    ),
 };
 
-export const CounterState = createState(counterStateInput);
+export const CounterStore = store(counterStoreInput);

@@ -1,8 +1,8 @@
 import {
    Action,
    Selector,
-   State,
-   StateInput,
+   Store,
+   StoreInput,
    createAction,
    createSelector,
 } from 'projects/libs/ngxss/src/public-api';
@@ -21,7 +21,7 @@ export function isErrorState(callstate: CallState): callstate is ErrorState {
    return !!Object.hasOwn(callstate as object, 'error');
 }
 
-export type CallStateStateType = State<{
+export type CallStateStoreType = Store<{
    callState: CallState;
 
    setLoaded: Action;
@@ -32,7 +32,7 @@ export type CallStateStateType = State<{
    error: Selector<Error | null>;
 }>;
 
-export const callStateStateInput: StateInput<CallStateStateType> = {
+export const callStateStateInput: StoreInput<CallStateStoreType> = {
    callState: LoadingState.Init,
 
    setLoaded: createAction((state) => {

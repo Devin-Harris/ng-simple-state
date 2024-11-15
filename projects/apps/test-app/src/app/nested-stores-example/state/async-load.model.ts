@@ -1,22 +1,21 @@
 import { inject } from '@angular/core';
 import {
    Action,
-   State,
-   StateSignal,
+   Store,
+   StoreSignal,
    createAction,
-   createInjectableState,
-   createState,
+   store,
 } from 'projects/libs/ngxss/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
-   CallStateStateType,
+   CallStateStoreType,
    LoadingState,
    callStateStateInput,
 } from './call-state.model';
 
-export type NestedAsyncStateType = State<{
+export type NestedAsyncStateType = Store<{
    // State slices
-   callStateStore: StateSignal<CallStateStateType>;
+   callStateStore: StoreSignal<CallStateStoreType>;
 
    // Root State
    entityName: string | null;
@@ -29,10 +28,10 @@ export type NestedAsyncStateType = State<{
 }>;
 
 export const AsyncLoadWithCallStateStore =
-   createInjectableState<NestedAsyncStateType>(
+   store.injectable<NestedAsyncStateType>(
       {
          // Store slices
-         callStateStore: createState(callStateStateInput),
+         callStateStore: store(callStateStateInput),
 
          // Root State
          entityName: null,

@@ -1,4 +1,4 @@
-import { StateSignal } from '../../state/types/state-types';
+import { StoreSignal } from '../../../public-api';
 import { NGX_SIMPLE_SELECTOR_TOKEN } from '../tokens/selector-tokens';
 
 export type Selector<ReturnType, InitialValueType = {}> = InternalSelector<
@@ -7,9 +7,9 @@ export type Selector<ReturnType, InitialValueType = {}> = InternalSelector<
 >;
 
 export type InternalSelector<InitialValueType, ReturnType> = (
-   state: StateSignal<InitialValueType>
+   store: StoreSignal<InitialValueType>
 ) => ReturnType;
 
-export type CreateSelectorFn<T, R> = ((state: StateSignal<T>) => R) & {
+export type CreateSelectorFn<T, R> = ((store: StoreSignal<T>) => R) & {
    [NGX_SIMPLE_SELECTOR_TOKEN]?: true;
 };

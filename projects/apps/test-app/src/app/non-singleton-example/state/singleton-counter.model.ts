@@ -1,29 +1,25 @@
 import {
    Action,
-   State,
+   Store,
    createAction,
-   createInjectableState,
+   store,
 } from 'projects/libs/ngxss/src/public-api';
 
-export type CounterStateType = State<{
+export type CounterStoreType = Store<{
    count: number;
    increment: Action;
 }>;
 
-export const counterStateInput: CounterStateType = {
+export const counterStateInput: CounterStoreType = {
    count: 0,
    increment: createAction((state) => state.count.update((c) => c + 1)),
 };
 
-export const SingletonCounterState = createInjectableState<CounterStateType>(
+export const SingletonCounterState = store.injectable<CounterStoreType>(
    counterStateInput,
    {
       providedIn: 'root',
    }
 );
-export const NonSingletonCounterState = createInjectableState<CounterStateType>(
-   counterStateInput,
-   {
-      providedIn: 'root',
-   }
-);
+export const NonSingletonCounterState =
+   store.injectable<CounterStoreType>(counterStateInput);
