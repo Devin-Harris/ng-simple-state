@@ -1,12 +1,7 @@
 import { Signal, Type } from '@angular/core';
 import { CreateAction, CreateSelector } from '../../../public-api';
 import { NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN } from '../tokens/store-tokens';
-import {
-   InjectableConfig,
-   Store,
-   StoreInput,
-   StoreSignal,
-} from './store-types';
+import { InjectableConfig, Store, StoreSignal } from './store-types';
 
 type ExcludeActions<T> = {
    [K in keyof T]: T[K] extends CreateAction<any, any> ? never : K;
@@ -59,10 +54,7 @@ export type ViewHelperMethod<T> = WithHelperMethodToken<
 
 export type ResetHelperMethod<T> = WithHelperMethodToken<() => void>;
 export type InjectableHelperMethod<T> = WithHelperMethodToken<
-   (
-      intialValue: StoreInput<T>,
-      config?: InjectableConfig
-   ) => Type<StoreSignal<T>>
+   (intialValue: T, config?: InjectableConfig) => Type<StoreSignal<T>>
 >;
 export type HelperMethodUnion =
    | PatchHelperMethod<any>

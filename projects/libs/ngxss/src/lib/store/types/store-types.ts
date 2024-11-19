@@ -28,6 +28,8 @@ export type Store<T> = {
       ? CreateSelector<Store<T>, R>
       : T[x] extends Action<infer P>
       ? CreateAction<Store<T>, P>
+      : x extends keyof StoreSignalHelperMethods<any>
+      ? never
       : T[x];
 };
 
@@ -49,5 +51,3 @@ export type StoreSignal<T> = StoreSignalType<T> &
       [NGX_SIMPLE_STATE_STORE_TOKEN]: true;
       [NGX_SIMPLE_STATE_INJECTOR_TOKEN]: WritableSignal<Injector | null>;
    };
-
-export type StoreInput<T> = Pick<T, ExcludeStoreSignalHelperMethods<T>>;

@@ -5,7 +5,6 @@ import {
    Selector,
    store,
    Store,
-   StoreInput,
 } from 'projects/libs/ngxss/src/public-api';
 
 export type CounterStoreType = Store<{
@@ -21,7 +20,7 @@ export type CounterStoreType = Store<{
    between5and10: Selector<boolean>;
 }>;
 
-export const counterStoreInput: StoreInput<CounterStoreType> = {
+export const counterStoreInput: CounterStoreType = {
    count: 0,
 
    /**

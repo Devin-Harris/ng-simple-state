@@ -15,7 +15,7 @@ import {
    NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN,
 } from './tokens/store-tokens';
 import { StoreSignalPatchParam } from './types/helper-method-types';
-import { InjectableConfig, StoreInput, StoreSignal } from './types/store-types';
+import { InjectableConfig, StoreSignal } from './types/store-types';
 
 export function buildViewFn<InitialValueType>(
    store: StoreSignal<InitialValueType>
@@ -102,16 +102,14 @@ export function buildResetFn<InitialValueType>(
    Object.assign(fn, { [NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN]: true });
    return fn;
 }
-export function buildInjectableFn<InitialValueType>() {
-   const fn = (
-      intialValue: StoreInput<InitialValueType>,
-      config?: InjectableConfig
-   ) => createInjectableStore(intialValue, config);
+export function buildInjectableFn<InitialValueType extends {}>() {
+   const fn = (intialValue: InitialValueType, config?: InjectableConfig) =>
+      createInjectableStore(intialValue, config);
    Object.assign(fn, { [NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN]: true });
    return fn;
 }
 function createInjectableStore<InitialValueType extends {}>(
-   intialValue: StoreInput<InitialValueType>,
+   intialValue: InitialValueType,
    config?: InjectableConfig
 ): Type<StoreSignal<InitialValueType>> {
    @Injectable({ providedIn: config?.providedIn || null })

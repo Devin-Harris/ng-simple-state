@@ -2,7 +2,6 @@ import {
    Action,
    Selector,
    Store,
-   StoreInput,
    createAction,
    createSelector,
 } from 'projects/libs/ngxss/src/public-api';
@@ -32,7 +31,7 @@ export type CallStateStoreType = Store<{
    error: Selector<Error | null>;
 }>;
 
-export const callStateStoreInput: StoreInput<CallStateStoreType> = {
+export const callStateStoreInput: CallStateStoreType = {
    callState: LoadingState.Init,
 
    setLoaded: createAction((state) => {

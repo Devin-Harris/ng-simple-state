@@ -14,18 +14,18 @@ import {
 } from './tokens/store-tokens';
 import {
    InjectableConfig,
-   StoreInput,
+   Store,
    StoreSignal,
    StoreSignalConfig,
 } from './types/store-types';
 
 export const store = addInjectableOptionToStoreCreationFunction(createStore);
 
-function createStore<StoreType extends {}>(
-   intialValue: StoreInput<StoreType>,
+function createStore<StoreType extends Store<T>, T extends {} = {}>(
+   intialValue: StoreType,
    config: StoreSignalConfig = {}
 ): StoreSignal<StoreType> {
-   const keys = Object.keys(intialValue) as (keyof StoreInput<StoreType>)[];
+   const keys = Object.keys(intialValue) as (keyof StoreType)[];
 
    if (!intialValue || keys.length === 0) {
       throw new Error('Must provide an inital object value to store');
@@ -91,16 +91,16 @@ function addInjectableOptionToStoreCreationFunction<
 >(
    fn: P
 ): P & {
-   injectable: <InitialValueType extends {}>(
-      intialValue: StoreInput<InitialValueType>,
+   injectable: <StoreType extends Store<T>, T extends {} = {}>(
+      intialValue: StoreType,
       config?: InjectableConfig
-   ) => Type<StoreSignal<InitialValueType>>;
+   ) => Type<StoreSignal<StoreType>>;
 } {
    Object.assign(fn, { injectable: buildInjectableFn() });
    return fn as P & {
-      injectable: <InitialValueType extends {}>(
-         intialValue: StoreInput<InitialValueType>,
+      injectable: <StoreType extends Store<T>, T extends {} = {}>(
+         intialValue: StoreType,
          config?: InjectableConfig
-      ) => Type<StoreSignal<InitialValueType>>;
+      ) => Type<StoreSignal<StoreType>>;
    };
 }
