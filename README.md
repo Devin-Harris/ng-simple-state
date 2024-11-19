@@ -4,7 +4,7 @@ Simple state management for angular.
 
 The goal of NgxSimpleState is to provide a clean, signal based approach to handling state in angular applications. Many libraries such as ngrx, ngxs, and others require extensive boilerplate and knowledge of patterns such as redux. Libraries like these can provide consistency and more flexibility for large scale applications, but in some opinions could be cumbersome. NgxSimpleState attempts to provide a simple, declarative approach to defining how your state looks and can change, while also building on top of the new signal and computed primitives provided in recent angular versions.
 
-This library also took some inspiration from ngrx [SignalStore](https://ngrx.io/guide/signals/signal-store). SignalStore has some concepts such as only creating computed signal fields, restricting of selectors within selectors, and proxy logic to recursively create signals for object fields. In my opinion some of these are strange implementations and were the main reasons for creating this library. Of course, I am sure there are reasons for all of those implementations within ngrx's SignalStore, but for my needs a simpler and more flexible approach seemed warranted.
+This library started with inspiration from ngrx [SignalStore](https://ngrx.io/guide/signals/signal-store). SignalStore has some concepts such as only creating computed signal fields, restricting of selectors within selectors, and proxy logic to recursively create "deep" signals for object fields. In my opinion some of these are complex implementations and were the main reasons for creating this library. Of course, I am sure there are reasons for all of those implementations within ngrx's SignalStore, but for my needs a simpler and more flexible approach seemed warranted.
 
 ---
 
@@ -39,8 +39,8 @@ The basic idea behind ngx-simple-state is to provide a set of helper function an
 
 1. **Root State**: The root state is the root level fields of your state. Each root level field will be converted into a writable signal that you can update and retrieve as you wish.
 2. **Selectors**: Selectors are derived state from the given root state fields. There are often times when you are storing some value in state, but want to do some computations on that value before say displaying it in the UI. Selectors are great for this as you can consume all the root state fields within the store AND all the other selectors within the store as well. Each selectors is converted into a computed (readonly) signal.
-3. **Actions**: Actions are callable functions that can have some effect on how the state changes. An action, when called, has access to what the state currently is, as well as the capability to change said state in some callback function. Each action can have a payload defined and if it does it is a required input when calling the action. Each action also has an internal subject added to the function object in case more complex rxjs operations need to be triggered off an action call. You can retrieve the internal subject by using the `actionToSubject` helper method. Actions built inside the `createState` or `createInjectableState` helper function also have access to dependency injection if you provide an `injector` in config object.
-4. **Nested State**: State objects can be nested within other state objects. In some instances a generic store, such as for handling whether there is asynchronous data being received and what the state of that request is, would be nice to have defined once and then nested into other more specific store objects.
+3. **Actions**: Actions are callable functions that can have some effect on how the state changes. An action, when called, has access to what the state currently is, as well as the capability to change said state in some callback function. Each action can have a payload defined and if it does it is a required input when calling the action. Each action also has an internal subject added to the function object in case more complex rxjs operations need to be triggered off an action call. Actions built inside the `store` helper function also have access to dependency injection if you provide an `injector` in config object. Or you can use the `store.injectable` if you prefer not to define the injector explicitly.
+4. **Nested State**: State objects can be nested within other state objects. In some instances a generic store, such as for handling the loading state of an asynchronous data fetch, would be nice to have defined once and then nested into other more specific store objects.
 
 <a name="usage"/>
 
@@ -50,10 +50,10 @@ The basic idea behind ngx-simple-state is to provide a set of helper function an
 
 ### Counter example
 
-Lets start with a simple counter example. The first step is to define the State type...
+Lets start with a simple counter example. The first step is to define the stores type...
 
 ```typescript
-export type CounterStateType = State<{
+export type CounterStoreType = Store<{
    count: number;
 
    setCount: Action<number>;
@@ -67,20 +67,20 @@ export type CounterStateType = State<{
 }>;
 ```
 
-This example defines one root level field as well as some Action and Selector fields which we will explore further later. Notice the `State` generic type. This is a helper type that you wrap the inner state fields with to ensure each action and selector knows what fields they have access to on the passed in state object.
+This example defines one root level field as well as some Action and Selector fields which we will explore further later. Notice the `Store` generic type. This is a helper type that you wrap the inner state fields with to ensure each action and selector knows what fields they have access to on the passed in state object.
 
-Once your type is defined you can create the input for your counter store using said state type as well as the `StateInput` generic type.
+Once your type is defined you can create the input for your counter store using said type as well as the `StoreInput` generic type.
 
 ```typescript
-export const counterStateInput: StateInput<CounterStateType> = {
+export const counterStoreInput: StoreInput<CounterStoreType> = {
    count: 0,
 
    /**
     * Actions should be defined with the createAction method.
     * This method puts a special token on the function objects which is used
-    * when building the state object to automatically impose the inner state objects when calling
+    * when building the store to automatically impose the inner state objects when calling
     * the Actions. Actions also provide a subject of the given Action which you can retrieve
-    * by using the actionToSubject method. This is useful when you want to use rxjs or
+    * by using the `subject` field on the action object. This is useful when you want to use rxjs or
     * dependency injection to trigger other events from a interaction.
     */
    setCount: createAction((state, count) => state.count.set(count)),
@@ -90,7 +90,7 @@ export const counterStateInput: StateInput<CounterStateType> = {
 
    /**
     * Selectors should be defined with the createSelector method.
-    * This method puts a special token on the function objects which is used
+    * This method again puts a special token on the function objects which is used
     * when building the store to force the selectors to be readonly computed signals
     * instead of writable ones.
     */
@@ -102,23 +102,23 @@ export const counterStateInput: StateInput<CounterStateType> = {
 };
 ```
 
-The `StateInput` prevents certain keys such as `patch` and `view` from being defined as the state object will set those fields internally.
+The `StoreInput` prevents certain keys such as `patch` and `view` from being defined as the state object will set those fields internally.
 
-Finally we can use this input with the `createState` method.
+Finally we can use this input with the `store` method.
 
 ```typescript
-export const CounterState = createState(counterStateInput);
+export const CounterStore = store(counterStateInput);
 ```
 
-Note you can also use the `createInjectableState` method if injection context is more important for the particular state you are working with. This method takes the input we've defined and a config option where you can define where the store is providedIn.
+Note you can also use the `store.injectable` method if injection context is important for the particular state you are working with. This method returns an injectable class which you can do normal dependency injection with, as well as define where its provided.
 
 ```typescript
-export const CounterState = createInjectableState(counterStateInput, {
+export const CounterStore = store.injectable(counterStateInput, {
    providedIn: 'root',
 });
 ```
 
-This `CounterState` (built with the `createInjectableState`) can then be injected into a component like this:
+This `CounterStore` (the one built with the `store.injectable`) can then be injected into a component like this:
 
 ```typescript
 @Component({
@@ -127,28 +127,28 @@ This `CounterState` (built with the `createInjectableState`) can then be injecte
       <h2>Counter Example</h2>
 
       <label>State View</label>
-      <pre>{{ state.view() | json }}</pre>
+      <pre>{{ store.view() | json }}</pre>
 
-      <button (click)="state.increment()">Increment</button>
-      <button (click)="state.decrement()">Decrement</button>
-      <button (click)="state.reset()">Reset</button>
-      <button (click)="state.setCount(100)">Set to 100</button>
+      <button (click)="store.increment()">Increment</button>
+      <button (click)="store.decrement()">Decrement</button>
+      <button (click)="store.reset()">Reset</button>
+      <button (click)="store.setCount(100)">Set to 100</button>
    `
 })
 export class CounterExampleComponent {
-   readonly state = inject(CounterState);
+   readonly store = inject(CounterStore);
 
    constructor() {
-      actionToSubject(this.state.setCount).subscribe((t) => {
+      this.store.setCount.subject.pipe(takeUntilDestroyed()).subscribe((t) => {
          console.log('setCount called');
       });
    }
 }
 ```
 
-Notice how the state object has a `view` signal. This is a computed signal with all the values of the writable signals and computed selector signals created from the passed in input object. Of course you can also utilize the individual signals as well (for example `state.count()`, `state.count.set(1)`, or `state.lessThan10()`), but the `view` is a nice way to get all the state properties at once.
+Notice how the store has a `view` signal. This is a computed signal with all the values of the writable signals and computed selector signals created from the passed in input object. Of course you can also utilize the individual signals as well (for example `store.count()` or `store.lessThan10()`), but the `view` is a nice way to get all the state values out at once.
 
-Also notice how actions are imposed as callable functions as well. These actions can have optional parameters which will be sent to the callback function defined in the input object. Actions also have a subject that is nexted with the parameters sent to the action when it is called, which can be pulled out using the `actionToSubject` method. In the above example you could see how both the Reset and SetCount action will trigger the subscription done in this constructor since actions can call other actions within a store.
+Also notice how actions are callable functions as well. These actions can have optional parameters which will be sent to the callback function defined in the input object. Actions also have a subject that is nexted with the parameters sent to the action when it is called, which can be pulled out using the `subject` field. In the above example you could see how both the `reset` and `setCount` action will trigger the subscription done in this constructor since actions can call other actions within a store.
 
 <a name="async"/>
 
@@ -174,10 +174,10 @@ export function isErrorState(callstate: CallState): callstate is ErrorState {
 }
 ```
 
-Then we can define a state type:
+Then we can define a store type:
 
 ```typescript
-export type AsyncStateType = State<{
+export type AsyncStoreType = Store<{
    // Root State
    entityName: string | null;
    entityId: number | null;
@@ -196,7 +196,7 @@ export type AsyncStateType = State<{
 
 Here you can see we have some basic information about some entity and whether the request for that entity is loading, loaded, or errored (based on the `CallState`).
 
-You also see some actions for triggering a loadEntity and whether the response from that request was a failure with an error or a success with some name and id.
+You also see some actions for triggering a loadEntity and whether the response from that request was a failure with an error, or a success with some name and id.
 
 Then imagine we have some api service responsible for fetching entity information:
 
@@ -226,10 +226,10 @@ export class AsyncLoadApiService {
 }
 ```
 
-I can then define the input and pass it to the `createInjectableState`. Also notice how we are not using the `StateInput` as we did in the above example. This requires us to pass the `AsyncStateType` type to the `createInjectableState` call so it can properly determine the type within the object:
+I can then define the input and pass it to the `store.injectable` method.
 
 ```typescript
-export const AsyncLoadState = createInjectableState<AsyncStateType>(
+export const AsyncLoadStore = store.injectable<AsyncStoreType>(
    {
       // Root State
       callState: LoadingState.Init,
@@ -239,22 +239,21 @@ export const AsyncLoadState = createInjectableState<AsyncStateType>(
       /**
        * Actions
        * Notice how you can utilize dependency injection in the state action callback
-       * function parameters. These items should always be after the required parameters
-       * so for actions that do not have props defined the signature should still
-       * denote (state, ...rest of injection properties...) => ... but for actions with
-       * props defined it should read (state, props, ...rest of injection properties...) => ...
+       * function. If you are using the inject keyword, you need to use the store.injectable
+       * and provide it in whatever component you are using the store in OR provide an injector
+       * to the normal `store` method.
        */
-      loadEntity: createAction(
-         async (state, props, apiService = inject(AsyncLoadApiService)) => {
-            state.callState.set(LoadingState.Loading);
-            try {
-               const response = await apiService.getEntity(props.id);
-               return state.loadEntitySuccess(response);
-            } catch (error: any) {
-               return state.loadEntityFailure({ error });
-            }
+      loadEntity: createAction(async (state, props) => {
+         const apiService = inject(AsyncLoadApiService);
+
+         state.callState.set(LoadingState.Loading);
+         try {
+            const response = await apiService.getEntity(props.id);
+            return state.loadEntitySuccess(response);
+         } catch (error: any) {
+            return state.loadEntityFailure({ error });
          }
-      ),
+      }),
       loadEntitySuccess: createAction((state, props) =>
          state.patch({ ...props, callState: LoadingState.Loaded })
       ),
@@ -275,7 +274,9 @@ export const AsyncLoadState = createInjectableState<AsyncStateType>(
 );
 ```
 
-You can also see how `patch` is used in the `loadEntitySuccess` and `loadEntityFailure` actions. Patch will essentially set the provided keys to the provided values with the root level writable signals. Of course you can only patch root level state fields, i.e. patching selectors or actions is not allowed. This is useful for when you want to change multiple fields in state at the same time without having to call the set method on each signal manually.
+Also notice how we are not using the `StoreInput` as we did in the above example. This requires us to pass the `AsyncStoreType` type to the `store.injectable` call so it can properly determine the type within the object:
+
+You can also see how `patch` is used in the `loadEntitySuccess` and `loadEntityFailure` actions. Patch will essentially set the provided keys to the provided values on the root level writable signals. Of course you can only patch root level state fields, i.e. patching selectors or actions is not allowed. This is useful for when you want to change multiple fields in the store at the same time without having to call the set method on each signal manually.
 
 Then utilizing this state you can see how async requests can be handled and mapped into new state mutations in a very straight forward and declarative manner:
 
@@ -284,18 +285,18 @@ Then utilizing this state you can see how async requests can be handled and mapp
    ...
    template: `
       <label>State View</label>
-      <pre>{{ state.view() | json }}</pre>
-      <button [disabled]="state.loading()" (click)="onLoad()">Load Entity</button>
+      <pre>{{ store.view() | json }}</pre>
+      <button [disabled]="store.loading()" (click)="onLoad()">Load Entity</button>
    `
 })
 export class AsyncLoadComponent {
-   readonly state = inject(AsyncLoadState);
+   readonly store = inject(AsyncLoadState);
 
    constructor() {
-      actionToSubject(this.state.loadEntity).subscribe(({ id }) => {
+      this.store.loadEntity.subject.pipe(takeUntilDestroyed()).subscribe(({ id }) => {
          console.log(`Loading Entity ${id}`);
       });
-      actionToSubject(this.state.loadEntitySuccess).subscribe(
+      this.store.loadEntitySuccess.subject.pipe(takeUntilDestroyed()).subscribe(
          ({ entityId, entityName }) => {
             console.log(`Entity ${entityId} (${entityName}) has loaded`);
          }
@@ -303,7 +304,7 @@ export class AsyncLoadComponent {
    }
 
    onLoad() {
-      this.state.loadEntity({
+      this.store.loadEntity({
          id: Math.floor(Math.random() * (names.length - 1)),
       });
    }
@@ -314,12 +315,12 @@ export class AsyncLoadComponent {
 
 ### Nested Stores Example
 
-Having the ability to nest state objects is also possible with ngx-simple-state. This can be useful in a case where we want to keep track of the `CallState` for asynchronous interactions and we have multiple different slices of state for different entities in our application. Redefining all of the callstate related selectors, root fields, and actions could be cumbersome so nesting stores is a great opportunity to reduce code duplication.
+Having the ability to nest state objects is also possible with ngx-simple-state. This can be useful in a case where we want to reduce code duplication. For example, we may have multiple different slices of state for different entities in our application that we want to track the `CallState` of asynchronous interactions for. Redefining all of the callstate related selectors, root fields, and actions could be cumbersome so nesting stores is a great opportunity to reduce code duplication.
 
-For this we need to create 2 state inputs. Lets start with the CallStateState input:
+For this we need to create some store inputs. Lets start with the CallStateStore input:
 
 ```typescript
-export type CallStateStateType = State<{
+export type CallStateStoreType = Store<{
    callState: CallState;
 
    setLoaded: Action;
@@ -330,7 +331,7 @@ export type CallStateStateType = State<{
    error: Selector<Error | null>;
 }>;
 
-export const callStateStateInput: StateInput<CallStateStateType> = {
+export const callStateStoreInput: StoreInput<CallStateStoreType> = {
    callState: LoadingState.Init,
 
    setLoaded: createAction((state) => {
@@ -353,70 +354,195 @@ export const callStateStateInput: StateInput<CallStateStateType> = {
 };
 ```
 
-Very similar to above examples but notice how we dont pass this input to a `createState` function call just yet...
+Very similar to above examples but notice how we dont pass this input to a `store` function call just yet...
 
-Next we make the `NestedAsyncStateType`:
+Next we make the `UserStoreType`:
 
 ```typescript
-export type NestedAsyncStateType = State<{
+export type UserStoreType = Store<{
    // State slices
-   callStateStore: StateSignal<CallStateStateType>;
+   callStateStore: StateSignal<CallStateStoreType>;
+
+   // Root State
+   userName: string | null;
+   userId: number | null;
+
+   // Actions
+   loadEntity: Action<{ userId: number }>;
+   loadEntitySuccess: Action<{ userName: string; userId: number }>;
+   loadEntityFailure: Action<{ error: Error }>;
+}>;
+```
+
+Notice how we utilize the `StateSignal` and `CallStateStoreType` types when defining the UserStoreType. This helper type allows the `store` and `store.injectable` to properly parse the inner state signals when patching, viewing, etc...
+
+Then similarly we can create another store type:
+
+```typescript
+export type TeamStoreType = Store<{
+   // State slices
+   callStateStore: StateSignal<CallStateStoreType>;
+
+   // Root State
+   teamName: string | null;
+   teamId: number | null;
+
+   // Actions
+   loadEntity: Action<{ teamId: number }>;
+   loadEntitySuccess: Action<{ teamName: string; teamId: number }>;
+   loadEntityFailure: Action<{ error: Error }>;
+}>;
+```
+
+Building the actual stores then looks like this:
+
+```typescript
+export const UserStore = store.injectable<UserStoreType>(
+   {
+      // State slices
+      callStateStore: store(callStateStateInput),
+
+      // Root State
+      userName: null,
+      userId: null,
+
+      // Actions
+      loadEntity: createAction(async (state, props) => {
+         state.callStateStore.setLoading();
+         // ... get users
+      }),
+      loadEntitySuccess: createAction((state, props) => {
+         state.patch({
+            ...props,
+            callStateStore: { callState: LoadingState.Loaded },
+         });
+      }),
+      loadEntityFailure: createAction((state, { error }) => {
+         state.callStateStore.setError({ error });
+      }),
+   },
+   {
+      providedIn: 'root',
+   }
+);
+```
+
+```typescript
+export const TeamStore = store.injectable<TeamStoreType>(
+   {
+      // State slices
+      callStateStore: store(callStateStateInput),
+
+      // Root State
+      userName: null,
+      userId: null,
+
+      // Actions
+      loadEntity: createAction(async (state, props) => {
+         state.callStateStore.setLoading();
+         // ... get teams
+      }),
+      loadEntitySuccess: createAction((state, props) => {
+         state.patch({
+            ...props,
+            callStateStore: { callState: LoadingState.Loaded },
+         });
+      }),
+      loadEntityFailure: createAction((state, { error }) => {
+         state.callStateStore.setError({ error });
+      }),
+   },
+   {
+      providedIn: 'root',
+   }
+);
+```
+
+Similar to selectors and actions, we utilize the `store` helper function which takes in the `callStateStoreInput`. With this state slice injected into our `UserStore` and `TeamStore` we can now use the root fields, selectors, and actions from the CallStateStore directly. As you can see in the `loadEntity` action where we `state.callStateStore.setLoading();`. The view, and patch methods are also available on the `callStateStore` field within our `UserStore` and `TeamStore`, and patching/viewing on the two top level stores will recursively call the `callStateStore` patch and view methods when necessary.
+
+We could take this a step further and generalize the entity loading functionality as well :
+
+```typescript
+export type EntityStoreType = Store<{
+   // State slices
+   callStateStore: StateSignal<CallStateStoreType>;
 
    // Root State
    entityName: string | null;
    entityId: number | null;
 
    // Actions
-   loadEntity: Action<{ id: number }>;
+   loadEntity: Action<{ entityId: number }>;
    loadEntitySuccess: Action<{ entityName: string; entityId: number }>;
    loadEntityFailure: Action<{ error: Error }>;
 }>;
+export const EntityStoreInput: StoreInput<EntityStoreType> = {
+   // State slices
+   callStateStore: store(callStateStateInput),
+
+   // Root State
+   entityName: null,
+   entityId: null,
+
+   // Actions
+   loadEntity: createAction(async (state, props) => {
+      state.callStateStore.setLoading();
+   }),
+   loadEntitySuccess: createAction((state, props) => {
+      state.patch({
+         ...props,
+         callStateStore: { callState: LoadingState.Loaded },
+      });
+   }),
+   loadEntityFailure: createAction((state, { error }) => {
+      state.callStateStore.setError({ error });
+   }),
+};
 ```
-
-Notice how we utilize the `StateSignal` and `CallStateStateType` types when defining the NestedAsyncStoreType. This helper type takes allows the `createState` and `createInjectableState` to properly parse the inner state signals when patching, viewing, etc...
-
-Building the actual state object then looks like this:
 
 ```typescript
-export const AsyncLoadWithCallStateStore =
-   createInjectableState<NestedAsyncStateType>(
-      {
-         // State slices
-         callStateStore: createState(callStateStateInput),
-
-         // Root State
-         entityName: null,
-         entityId: null,
-
-         // Actions
-         loadEntity: createAction(
-            async (state, props, apiService = inject(AsyncLoadApiService)) => {
-               state.callStateStore.setLoading();
-               try {
-                  const response = await apiService.getEntity(props.id);
-                  return state.loadEntitySuccess(response);
-               } catch (error: any) {
-                  return state.loadEntityFailure({ error });
-               }
-            }
-         ),
-         loadEntitySuccess: createAction((state, props) => {
-            state.patch({
-               ...props,
-               callStateStore: { callState: LoadingState.Loaded },
-            });
+export const TeamStore = store.injectable<TeamStoreType>(
+   {
+      // State slices
+      entityStore: store({
+         ...EntityStoreInput,
+         loadEntity: createAction(async (state, props) => {
+            const teamApiService = inject(TeamApiService);
+            state.callStateStore.setLoading();
+            // ... await teamApiService.get(props)
          }),
-         loadEntityFailure: createAction((state, { error }) => {
-            state.callStateStore.setError({ error });
+      }),
+   },
+   {
+      providedIn: 'root',
+   }
+);
+export const UserStore = store.injectable<UserStoreType>(
+   {
+      // State slices
+      entityStore: store({
+         ...EntityStoreInput,
+         loadEntity: createAction(async (state, props) => {
+            const userApiService = inject(UserApiService);
+            state.callStateStore.setLoading();
+            // ... await userApiService.get(props)
          }),
-      },
-      {
-         providedIn: 'root',
-      }
-   );
+      }),
+   },
+   {
+      providedIn: 'root',
+   }
+);
 ```
 
-Similar to selectors and actions, we utilize the `createState` helper function which takes in the `callStateStateInput`. With this state slice injected into our `AsyncLoadWithCallStateStore` we can now use the root fields, selectors, and actions from the CallStateStore directly in our `AsyncLoadWithCallStateStore` as you can see in the `loadEntity` action where we `state.callStateStore.setLoading();`. The view, and patch methods are also available on the `callStateStore` field within our `AsyncLoadWithCallStateStore`, and the top level `AsyncLoadWithCallStateStore` will recursively call the `callStateStore` patch and view methods when necessary.
+```typescript
+export class SomeComponent {
+   constructor() {
+      inject(UserStore).entityStore.loadEntity({ entityId: 1 });
+      inject(TeamStore).entityStore.loadEntity({ entityId: 10 });
+   }
+}
+```
 
 <a name="signal-based"/>
 
@@ -425,7 +551,7 @@ Similar to selectors and actions, we utilize the `createState` helper function w
 All of these examples show the flexibility ngx-simple-state provides. The best thing about this library is it is signal based. Look back at our counter example:
 
 ```typescript
-export type CounterStateType = State<{
+export type CounterStoreType = Store<{
    count: number;
 
    setCount: Action<number>;
@@ -437,7 +563,7 @@ export type CounterStateType = State<{
    lessThan10: Selector<boolean>;
    between5and10: Selector<boolean>;
 }>;
-export const counterStateInput: StateInput<CounterStateType> = {
+export const counterStoreInput: StoreInput<CounterStoreType> = {
    count: 0,
 
    setCount: createAction((state, count) => state.count.set(count)),
@@ -451,22 +577,23 @@ export const counterStateInput: StateInput<CounterStateType> = {
       (state) => !state.lessThan5() && state.lessThan10()
    ),
 };
-export const CounterState = createState(counterStateInput);
+export const CounterStore = store(counterStoreInput);
 ```
 
-Utilizing this inside a component gives us far more flexibility using the signal primitives angular provides. For example, lets say you want a computed property on the component level and not defined in the (in this case) global store. You can simply use the signals from the injected state then explicitly defined computed fields on the component:
+Utilizing this inside a component gives us far more flexibility using the signal primitives angular provides. For example, lets say you want a computed property on the component level and not defined in the (in this case global) store. You can simply use the signals from the injected store then explicitly define computed fields on the component:
 
 ```typescript
 @Component({...})
 export class CounterExampleComponent {
-   readonly state = CounterState;
+   // * Do not need to inject stores create with `store` method
+   readonly store = CounterStore;
 
    // Component level selector
-   lessThan1000 = computed(() => this.state.count() < 1000);
+   lessThan1000 = computed(() => this.store.count() < 1000);
 }
 ```
 
-You can even utilize the `effect` primitive to trigger some component level changes when certain or any store state changes happen:
+You can even utilize the `effect` primitive to trigger some component level changes when certain state changes happen:
 
 ```typescript
 @Component({...})
@@ -499,8 +626,7 @@ You can even have component level stores if you prefer:
 ```typescript
 @Component({...})
 export class CounterExampleComponent {
-   // Utilizing createState outside of constructor because we dont care about injection context for this particular store
-   readonly localState = createState<CounterStoreType>({
+   readonly localState = store<CounterStoreType>({
       count: 0,
       setCount: createAction((state, count) => state.count.set(count)),
       increment: createAction((state) => state.count.update((c) => c + 1)),
