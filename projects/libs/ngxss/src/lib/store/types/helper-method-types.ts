@@ -1,6 +1,5 @@
 import { Signal, Type } from '@angular/core';
-import { InternalAction } from '../../actions/types/action-types';
-import { InternalSelector } from '../../selectors/types/selector-types';
+import { ActionCallback, SelectorCallback } from '../../../public-api';
 import { NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN } from '../tokens/store-tokens';
 import {
    InjectableConfig,
@@ -11,8 +10,8 @@ import {
 
 type ExcludeSelectorsAndActions<T> = {
    [K in keyof T]: T[K] extends
-      | InternalSelector<any, any>
-      | InternalAction<any, any>
+      | SelectorCallback<any, any>
+      | ActionCallback<any, any>
       ? never
       : K;
 }[keyof T];

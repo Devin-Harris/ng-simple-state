@@ -2,28 +2,18 @@ import { Subject } from 'rxjs';
 import { StoreSignal } from '../../../public-api';
 import { NGX_SIMPLE_ACTION_TOKEN } from '../tokens/action-tokens';
 
-export type Action<Props = undefined, T = {}> = InternalAction<T, Props>;
+export type Action<Props = undefined, T = {}> = CreateAction<T, Props>;
 
-export type InternalAction<InitialValueType, Props = undefined> = (
-   store: StoreSignal<InitialValueType>,
-   props: Props
-) => void;
-
-export type WithActionToken<T> = T & {
-   [NGX_SIMPLE_ACTION_TOKEN]?: true;
-};
-
-export type CreateAction<T, P> = (P extends undefined
+export type ActionCallback<T, P> = P extends undefined
    ? (store: StoreSignal<T>) => void
-   : (store: StoreSignal<T>, props: P) => void) & {
-   [NGX_SIMPLE_ACTION_TOKEN]?: true;
-};
+   : (store: StoreSignal<T>, props: P) => void;
 
-export type WithActionSubject<P> = {
-   subject: Subject<P>;
+export type CreateAction<T, P> = ActionCallback<T, P> & {
+   [NGX_SIMPLE_ACTION_TOKEN]: true;
 };
 
 export type ActionType<T, P> = (P extends undefined
-   ? () => InternalAction<T, undefined>
-   : (props: P) => InternalAction<T, P>) &
-   WithActionSubject<P>;
+   ? () => ActionCallback<T, undefined>
+   : (props: P) => ActionCallback<T, P>) & {
+   subject: Subject<P>;
+};

@@ -1,7 +1,11 @@
 import { Injector, Signal, Type, WritableSignal } from '@angular/core';
 
-import { ActionType, InternalAction } from '../../actions/types/action-types';
-import { InternalSelector } from '../../selectors/types/selector-types';
+import {
+   Action,
+   ActionType,
+   CreateAction,
+} from '../../actions/types/action-types';
+import { CreateSelector, Selector } from '../../selectors/types/selector-types';
 import {
    NGX_SIMPLE_STATE_INJECTOR_TOKEN,
    NGX_SIMPLE_STATE_STORE_TOKEN,
@@ -20,25 +24,23 @@ export type StoreSignalConfig = {
 };
 
 export type Store<T> = {
-   [x in keyof T]: T[x] extends InternalAction<any, infer P>
-      ? T[x] extends InternalSelector<any, infer R>
-         ? InternalSelector<Store<T>, R>
-         : InternalAction<Store<T>, P>
-      : T[x] extends InternalSelector<any, infer R>
-      ? InternalSelector<Store<T>, R>
+   [x in keyof T]: T[x] extends Selector<infer R>
+      ? CreateSelector<Store<T>, R>
+      : T[x] extends Action<infer P>
+      ? CreateAction<Store<T>, P>
       : T[x];
 };
 
 type StoreSignalType<T> = {
-   [x in ExcludeStoreSignalHelperMethods<T>]: T[x] extends InternalSelector<
-      any,
+   [x in ExcludeStoreSignalHelperMethods<T>]: T[x] extends CreateSelector<
+      T,
       infer R
    >
       ? Signal<R>
-      : T[x] extends InternalAction<any, infer P>
+      : T[x] extends CreateAction<T, infer P>
       ? ActionType<T, P>
       : T[x] extends StoreSignal<Store<infer T2>>
-      ? StoreSignal<T2>
+      ? StoreSignal<Store<T2>>
       : WritableSignal<T[x]>;
 };
 
