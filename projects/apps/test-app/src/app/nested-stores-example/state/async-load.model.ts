@@ -38,17 +38,16 @@ export const AsyncLoadWithCallStateStore =
          entityId: null,
 
          // Actions
-         loadEntity: createAction(
-            async (state, props, apiService = inject(AsyncLoadApiService)) => {
-               state.callStateStore.setLoading();
-               try {
-                  const response = await apiService.getEntity(props.id);
-                  return state.loadEntitySuccess(response);
-               } catch (error: any) {
-                  return state.loadEntityFailure({ error });
-               }
+         loadEntity: createAction(async (state, props) => {
+            const apiService = inject(AsyncLoadApiService);
+            state.callStateStore.setLoading();
+            try {
+               const response = await apiService.getEntity(props.id);
+               return state.loadEntitySuccess(response);
+            } catch (error: any) {
+               return state.loadEntityFailure({ error });
             }
-         ),
+         }),
          loadEntitySuccess: createAction((state, props) => {
             state.patch({
                ...props,

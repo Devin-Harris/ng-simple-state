@@ -16,10 +16,13 @@ export const counterStoreInput: CounterStoreType = {
 };
 
 export const SingletonCounterStore = store.injectable<CounterStoreType>(
-   counterStoreInput,
+   { ...counterStoreInput },
    {
       providedIn: 'root',
    }
 );
-export const NonSingletonCounterStore =
-   store.injectable<CounterStoreType>(counterStoreInput);
+export const NonSingletonCounterStore = store.injectable<CounterStoreType>({
+   ...counterStoreInput,
+});
+
+export const t = store<CounterStoreType>({ ...counterStoreInput });
