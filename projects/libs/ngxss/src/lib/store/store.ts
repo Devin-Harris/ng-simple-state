@@ -21,13 +21,11 @@ import {
 
 export const store = addInjectableOptionToStoreCreationFunction(createStore);
 
-function createStore<InitialValueType extends {}>(
-   intialValue: StoreInput<InitialValueType>,
+function createStore<StoreType extends {}>(
+   intialValue: StoreInput<StoreType>,
    config: StoreSignalConfig = {}
-): StoreSignal<InitialValueType> {
-   const keys = Object.keys(
-      intialValue
-   ) as (keyof StoreInput<InitialValueType>)[];
+): StoreSignal<StoreType> {
+   const keys = Object.keys(intialValue) as (keyof StoreInput<StoreType>)[];
 
    if (!intialValue || keys.length === 0) {
       throw new Error('Must provide an inital object value to store');

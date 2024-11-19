@@ -1,5 +1,5 @@
 import { Signal, Type } from '@angular/core';
-import { ActionCallback, SelectorCallback } from '../../../public-api';
+import { CreateAction, CreateSelector } from '../../../public-api';
 import { NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN } from '../tokens/store-tokens';
 import {
    InjectableConfig,
@@ -8,10 +8,14 @@ import {
    StoreSignal,
 } from './store-types';
 
+type ExcludeActions<T> = {
+   [K in keyof T]: T[K] extends CreateAction<any, any> ? never : K;
+}[keyof T];
+
 type ExcludeSelectorsAndActions<T> = {
-   [K in keyof T]: T[K] extends
-      | SelectorCallback<any, any>
-      | ActionCallback<any, any>
+   [K in keyof T]: T[K] extends CreateSelector<any, any>
+      ? never
+      : T[K] extends CreateAction<any, any>
       ? never
       : K;
 }[keyof T];
@@ -45,7 +49,14 @@ type WithHelperMethodToken<T> = T & {
 export type PatchHelperMethod<T> = WithHelperMethodToken<
    (value: StoreSignalPatchParam<T>) => void
 >;
-export type ViewHelperMethod<T> = WithHelperMethodToken<Signal<T>>;
+export type ViewHelperMethod<T> = WithHelperMethodToken<
+   Signal<{
+      [x in ExcludeActions<T>]: T[x] extends CreateSelector<any, infer R>
+         ? R
+         : T[x];
+   }>
+>;
+
 export type ResetHelperMethod<T> = WithHelperMethodToken<() => void>;
 export type InjectableHelperMethod<T> = WithHelperMethodToken<
    (
@@ -58,9 +69,9 @@ export type HelperMethodUnion =
    | ViewHelperMethod<any>
    | ResetHelperMethod<any>;
 export type StoreSignalHelperMethods<T> = {
-   patch: PatchHelperMethod<T>;
-   view: ViewHelperMethod<T>;
-   reset: ResetHelperMethod<T>;
+   patch: PatchHelperMethod<T extends Store<infer T2> ? T2 : T>;
+   view: ViewHelperMethod<T extends Store<infer T2> ? T2 : T>;
+   reset: ResetHelperMethod<T extends Store<infer T2> ? T2 : T>;
 };
 
 export type ExcludeStoreSignalHelperMethods<T> = {
