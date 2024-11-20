@@ -28,6 +28,8 @@ export type Store<T> = {
       ? CreateSelector<Store<T>, R>
       : T[x] extends Action<infer P>
       ? CreateAction<Store<T>, P>
+      : T[x] extends Store<infer T2>
+      ? StoreSignal<Store<T2>>
       : x extends keyof StoreSignalHelperMethods<any>
       ? never
       : T[x];

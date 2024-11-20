@@ -2,7 +2,6 @@ import { inject } from '@angular/core';
 import {
    Action,
    Store,
-   StoreSignal,
    createAction,
    store,
 } from 'projects/libs/ngxss/src/public-api';
@@ -15,7 +14,7 @@ import {
 
 export type NestedAsyncStateType = Store<{
    // State slices
-   callStateStore: StoreSignal<CallStateStoreType>;
+   callStateStore: CallStateStoreType;
 
    // Root State
    entityName: string | null;

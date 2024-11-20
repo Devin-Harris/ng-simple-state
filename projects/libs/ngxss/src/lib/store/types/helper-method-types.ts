@@ -16,24 +16,18 @@ type ExcludeSelectorsAndActions<T> = {
 }[keyof T];
 
 type ExcludeSelectorsAndActionsAndStoreSignals<T> = {
-   [K in keyof Pick<
-      T,
-      ExcludeSelectorsAndActions<T>
-   >]: T[K] extends StoreSignal<any> ? never : K;
+   [K in keyof Pick<T, ExcludeSelectorsAndActions<T>>]: T[K] extends Store<any>
+      ? never
+      : K;
 }[keyof Pick<T, ExcludeSelectorsAndActions<T>>];
 
 export type StoreSignalWritableParam<T> = Pick<
    T,
    ExcludeSelectorsAndActionsAndStoreSignals<T>
 > & {
-   [x in keyof Pick<
-      T,
-      ExcludeSelectorsAndActions<T>
-   > as T[x] extends StoreSignal<Store<any>>
+   [x in keyof Pick<T, ExcludeSelectorsAndActions<T>> as T[x] extends Store<any>
       ? x
-      : never]: T[x] extends StoreSignal<Store<infer T2>>
-      ? StoreSignalPatchParam<T2>
-      : T[x];
+      : never]: T[x] extends Store<infer T2> ? StoreSignalPatchParam<T2> : T[x];
 };
 
 export type StoreSignalPatchParam<T> = Partial<StoreSignalWritableParam<T>>;

@@ -69,10 +69,10 @@ export type CounterStoreType = Store<{
 
 This example defines one root level field as well as some Action and Selector fields which we will explore further later. Notice the `Store` generic type. This is a helper type that you wrap the inner state fields with to ensure each action and selector knows what fields they have access to on the passed in state object.
 
-Once your type is defined you can create the input for your counter store using said type as well as the `StoreInput` generic type.
+Once your type is defined you can create the input for your counter store using said type.
 
 ```typescript
-export const counterStoreInput: StoreInput<CounterStoreType> = {
+export const counterStoreInput: CounterStoreType = {
    count: 0,
 
    /**
@@ -102,15 +102,21 @@ export const counterStoreInput: StoreInput<CounterStoreType> = {
 };
 ```
 
-The `StoreInput` prevents certain keys such as `patch` and `view` from being defined as the state object will set those fields internally.
-
 Finally we can use this input with the `store` method.
 
 ```typescript
 export const CounterStore = store(counterStateInput);
 ```
 
-Note you can also use the `store.injectable` method if injection context is important for the particular state you are working with. This method returns an injectable class which you can do normal dependency injection with, as well as define where its provided.
+Note if injection context is important for the particular state you are working with, you can pass an injector to the `store` method:
+
+```typescript
+export const CounterStore = store(counterStateInput, {
+   injector: inject(Injector),
+});
+```
+
+Or you can even use the `store.injectable` method, which returns an injectable class which you can do normal dependency injection with, as well as define where its provided:
 
 ```typescript
 export const CounterStore = store.injectable(counterStateInput, {
@@ -146,7 +152,7 @@ export class CounterExampleComponent {
 }
 ```
 
-Notice how the store has a `view` signal. This is a computed signal with all the values of the writable signals and computed selector signals created from the passed in input object. Of course you can also utilize the individual signals as well (for example `store.count()` or `store.lessThan10()`), but the `view` is a nice way to get all the state values out at once.
+Notice how the template uses the stores `view` signal. This is a computed signal with all the values of the writable signals and computed selector signals created from the passed in input object. Of course you can also utilize the individual signals as well (for example `store.count()` or `store.lessThan10()`), but the `view` is a nice way to get all the state values out at once.
 
 Also notice how actions are callable functions as well. These actions can have optional parameters which will be sent to the callback function defined in the input object. Actions also have a subject that is nexted with the parameters sent to the action when it is called, which can be pulled out using the `subject` field. In the above example you could see how both the `reset` and `setCount` action will trigger the subscription done in this constructor since actions can call other actions within a store.
 
@@ -274,9 +280,7 @@ export const AsyncLoadStore = store.injectable<AsyncStoreType>(
 );
 ```
 
-Also notice how we are not using the `StoreInput` as we did in the above example. This requires us to pass the `AsyncStoreType` type to the `store.injectable` call so it can properly determine the type within the object:
-
-You can also see how `patch` is used in the `loadEntitySuccess` and `loadEntityFailure` actions. Patch will essentially set the provided keys to the provided values on the root level writable signals. Of course you can only patch root level state fields, i.e. patching selectors or actions is not allowed. This is useful for when you want to change multiple fields in the store at the same time without having to call the set method on each signal manually.
+Notice how `patch` is used in the `loadEntitySuccess` and `loadEntityFailure` actions. Patch will essentially set the provided keys to the provided values on the root level writable signals. Of course you can only patch root level state fields, i.e. patching selectors or actions is not allowed. This is useful for when you want to change multiple fields in the store at the same time without having to call the set method on each signal manually.
 
 Then utilizing this state you can see how async requests can be handled and mapped into new state mutations in a very straight forward and declarative manner:
 
@@ -331,7 +335,7 @@ export type CallStateStoreType = Store<{
    error: Selector<Error | null>;
 }>;
 
-export const callStateStoreInput: StoreInput<CallStateStoreType> = {
+export const callStateStoreInput: CallStateStoreType = {
    callState: LoadingState.Init,
 
    setLoaded: createAction((state) => {
@@ -361,7 +365,7 @@ Next we make the `UserStoreType`:
 ```typescript
 export type UserStoreType = Store<{
    // State slices
-   callStateStore: StateSignal<CallStateStoreType>;
+   callStateStore: CallStateStoreType;
 
    // Root State
    userName: string | null;
@@ -374,14 +378,14 @@ export type UserStoreType = Store<{
 }>;
 ```
 
-Notice how we utilize the `StateSignal` and `CallStateStoreType` types when defining the UserStoreType. This helper type allows the `store` and `store.injectable` to properly parse the inner state signals when patching, viewing, etc...
+Notice how we utilize the `CallStateStoreType` type when defining the UserStoreType. This helper type allows the `store` and `store.injectable` to properly parse the inner state signals when patching, viewing, etc...
 
 Then similarly we can create another store type:
 
 ```typescript
 export type TeamStoreType = Store<{
    // State slices
-   callStateStore: StateSignal<CallStateStoreType>;
+   callStateStore: CallStateStoreType;
 
    // Root State
    teamName: string | null;
@@ -465,7 +469,7 @@ We could take this a step further and generalize the entity loading functionalit
 ```typescript
 export type EntityStoreType = Store<{
    // State slices
-   callStateStore: StateSignal<CallStateStoreType>;
+   callStateStore: CallStateStoreType;
 
    // Root State
    entityName: string | null;
@@ -476,7 +480,7 @@ export type EntityStoreType = Store<{
    loadEntitySuccess: Action<{ entityName: string; entityId: number }>;
    loadEntityFailure: Action<{ error: Error }>;
 }>;
-export const EntityStoreInput: StoreInput<EntityStoreType> = {
+export const EntityStoreInput: EntityStoreType = {
    // State slices
    callStateStore: store(callStateStateInput),
 
@@ -563,7 +567,7 @@ export type CounterStoreType = Store<{
    lessThan10: Selector<boolean>;
    between5and10: Selector<boolean>;
 }>;
-export const counterStoreInput: StoreInput<CounterStoreType> = {
+export const counterStoreInput: CounterStoreType = {
    count: 0,
 
    setCount: createAction((state, count) => state.count.set(count)),
