@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { store } from 'projects/libs/ngxss/src/public-api';
 import { CounterCardComponent } from './components/counter-card.component';
-import { CounterStore } from './state/counter.model';
+import { CounterStore, counterStoreInput } from './state/counter.model';
 
 @Component({
    selector: 'ngxss-counter-example',
@@ -15,4 +16,15 @@ import { CounterStore } from './state/counter.model';
 })
 export class CounterExampleComponent {
    readonly globalStore = CounterStore;
+
+   readonlyStore = store.readonly(counterStoreInput);
+   readonlyInjectableStore = inject(
+      store.readonly.injectable(counterStoreInput, { providedIn: 'root' })
+   );
+   injectableStore = inject(
+      store.injectable(counterStoreInput, { providedIn: 'root' })
+   );
+   injectableReadonlyStore = inject(
+      store.injectable.readonly(counterStoreInput, { providedIn: 'root' })
+   );
 }

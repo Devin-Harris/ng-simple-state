@@ -35,7 +35,7 @@ export type Store<T> = {
       : T[x];
 };
 
-type StoreSignalType<T> = {
+type StoreSignalType<T, Readonly extends boolean = false> = {
    [x in ExcludeStoreSignalHelperMethods<T>]: T[x] extends CreateSelector<
       T,
       infer R
@@ -43,13 +43,18 @@ type StoreSignalType<T> = {
       ? Signal<R>
       : T[x] extends CreateAction<T, infer P>
       ? ActionType<T, P>
-      : T[x] extends StoreSignal<Store<infer T2>>
-      ? StoreSignal<Store<T2>>
+      : T[x] extends StoreSignal<Store<infer T2>, infer Readonly2>
+      ? StoreSignal<Store<T2>, Readonly2>
+      : Readonly extends true
+      ? Signal<T[x]>
       : WritableSignal<T[x]>;
 };
 
-export type StoreSignal<T> = StoreSignalType<T> &
-   StoreSignalHelperMethods<T> & {
+export type StoreSignal<T, Readonly extends boolean = false> = StoreSignalType<
+   T,
+   Readonly
+> &
+   StoreSignalHelperMethods<T, Readonly> & {
       [NGX_SIMPLE_STATE_STORE_TOKEN]: true;
       [NGX_SIMPLE_STATE_INJECTOR_TOKEN]: WritableSignal<Injector | null>;
    };

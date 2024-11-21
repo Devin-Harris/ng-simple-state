@@ -1,30 +1,34 @@
-import { computed, Injector, signal, Type } from '@angular/core';
-import { buildActionFn, isAction } from '../actions/action';
+import { computed, Injector, signal } from '@angular/core';
+import {
+   buildActionFn,
+   isAction,
+   NGX_SIMPLE_ACTION_WRITABLE_SIGNAL_TOKEN,
+} from '../../public-api';
 import { isSelector } from '../selectors/selector';
 import {
-   buildInjectableFn,
    buildPatchFn,
    buildResetFn,
    buildViewFn,
 } from './store-helper-methods';
+import { storeWithVariants } from './store-variants';
 import {
    isStore,
    NGX_SIMPLE_STATE_INJECTOR_TOKEN,
    NGX_SIMPLE_STATE_STORE_TOKEN,
 } from './tokens/store-tokens';
-import {
-   InjectableConfig,
-   Store,
-   StoreSignal,
-   StoreSignalConfig,
-} from './types/store-types';
+import { Store, StoreSignal, StoreSignalConfig } from './types/store-types';
 
-export const store = addInjectableOptionToStoreCreationFunction(createStore);
+export const store = storeWithVariants;
 
-function createStore<StoreType extends Store<T>, T extends {} = {}>(
+export function createStore<
+   StoreType extends Store<T>,
+   T extends {} = {},
+   Readonly extends boolean = false
+>(
    intialValue: StoreType,
-   config: StoreSignalConfig = {}
-): StoreSignal<StoreType> {
+   config: StoreSignalConfig = {},
+   readonly: boolean = false
+): StoreSignal<StoreType, Readonly> {
    const keys = Object.keys(intialValue) as (keyof StoreType)[];
 
    if (!intialValue || keys.length === 0) {
@@ -56,20 +60,25 @@ function createStore<StoreType extends Store<T>, T extends {} = {}>(
          value[NGX_SIMPLE_STATE_INJECTOR_TOKEN].set(injector);
          storeObj[k] = value;
       } else {
-         storeObj[k] = signal(value);
+         const s = signal(value);
+         storeObj[k] = readonly ? s.asReadonly() : s;
+         // Keep writable version of signal so actions can mutate signals
+         storeObj[k][NGX_SIMPLE_ACTION_WRITABLE_SIGNAL_TOKEN] = s;
       }
    }
 
-   if (storeObj['patch']) {
-      throw new Error(
-         `Key \`patch\` is trying to be set multiple times within this store`
-      );
-   }
-   storeObj.patch = buildPatchFn(storeObj);
-   if (storeObj['view']) {
-      throw new Error(
-         `Key \`view\` is trying to be set multiple times within this store`
-      );
+   if (!readonly) {
+      if (storeObj['patch']) {
+         throw new Error(
+            `Key \`patch\` is trying to be set multiple times within this store`
+         );
+      }
+      storeObj.patch = buildPatchFn(storeObj);
+      if (storeObj['view']) {
+         throw new Error(
+            `Key \`view\` is trying to be set multiple times within this store`
+         );
+      }
    }
    storeObj.view = buildViewFn(storeObj);
    if (storeObj['reset']) {
@@ -84,23 +93,4 @@ function createStore<StoreType extends Store<T>, T extends {} = {}>(
    });
 
    return storeObj;
-}
-
-function addInjectableOptionToStoreCreationFunction<
-   P extends Function = typeof createStore
->(
-   fn: P
-): P & {
-   injectable: <StoreType extends Store<T>, T extends {} = {}>(
-      intialValue: StoreType,
-      config?: InjectableConfig
-   ) => Type<StoreSignal<StoreType>>;
-} {
-   Object.assign(fn, { injectable: buildInjectableFn() });
-   return fn as P & {
-      injectable: <StoreType extends Store<T>, T extends {} = {}>(
-         intialValue: StoreType,
-         config?: InjectableConfig
-      ) => Type<StoreSignal<StoreType>>;
-   };
 }

@@ -54,11 +54,14 @@ export type HelperMethodUnion =
    | PatchHelperMethod<any>
    | ViewHelperMethod<any>
    | ResetHelperMethod<any>;
-export type StoreSignalHelperMethods<T> = {
-   patch: PatchHelperMethod<T extends Store<infer T2> ? T2 : T>;
+export type StoreSignalHelperMethods<T, Readonly extends boolean = false> = {
    view: ViewHelperMethod<T extends Store<infer T2> ? T2 : T>;
    reset: ResetHelperMethod<T extends Store<infer T2> ? T2 : T>;
-};
+} & (Readonly extends false
+   ? {
+        patch: PatchHelperMethod<T extends Store<infer T2> ? T2 : T>;
+     }
+   : {});
 
 export type ExcludeStoreSignalHelperMethods<T> = {
    [x in keyof T]: x extends keyof StoreSignalHelperMethods<T> ? never : x;
