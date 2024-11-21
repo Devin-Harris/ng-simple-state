@@ -1,4 +1,4 @@
-@use '../../styles/colors';
+@use '../../../styles/colors';
 
 :host {
    border: 1px solid white;
@@ -32,12 +32,15 @@
       grid-gap: 1em;
       justify-content: flex-start;
       align-items: center;
-      width: max-content;
+      width: 100%;
       label {
          font-weight: bold;
       }
       pre {
          margin: 0.5em 0;
+      }
+      button {
+         width: 100%;
       }
    }
 }

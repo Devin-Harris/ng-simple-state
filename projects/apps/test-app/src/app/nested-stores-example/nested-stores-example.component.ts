@@ -17,17 +17,27 @@ export class NestedStoresComponent {
    readonly store = inject(AsyncLoadWithCallStateStore);
 
    constructor() {
-      this.store.$loadEntity.subscribe(({ id }) => {
+      this.store.loadEntity.subject.subscribe(({ id }) => {
          console.log(`Loading Entity ${id}`);
       });
-      this.store.$loadEntitySuccess.subscribe(({ entityId, entityName }) => {
-         console.log(`Entity ${entityId} (${entityName}) has loaded`);
-      });
+      this.store.loadEntitySuccess.subject.subscribe(
+         ({ entityId, entityName }) => {
+            console.log(`Entity ${entityId} (${entityName}) has loaded`);
+         }
+      );
    }
 
    onLoad() {
       this.store.loadEntity({
          id: Math.floor(Math.random() * (names.length - 1)),
       });
+   }
+
+   onReset() {
+      this.store.reset();
+   }
+
+   onResetCallState() {
+      this.store.callStateStore.reset();
    }
 }

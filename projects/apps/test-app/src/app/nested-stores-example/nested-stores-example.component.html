@@ -9,4 +9,13 @@
    <button [disabled]="store.callStateStore.loading()" (click)="onLoad()">
       Load Entity
    </button>
+   <button [disabled]="store.callStateStore.loading()" (click)="onReset()">
+      Reset All
+   </button>
+   <button
+      [disabled]="store.callStateStore.loading()"
+      (click)="onResetCallState()"
+   >
+      Reset Call State
+   </button>
 </div>

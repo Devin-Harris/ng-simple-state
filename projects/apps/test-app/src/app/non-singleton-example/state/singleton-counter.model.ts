@@ -2,7 +2,7 @@ import {
    Action,
    Store,
    createAction,
-   createStore,
+   store,
 } from 'projects/libs/ngxss/src/public-api';
 
 export type CounterStoreType = Store<{
@@ -15,15 +15,14 @@ export const counterStoreInput: CounterStoreType = {
    increment: createAction((state) => state.count.update((c) => c + 1)),
 };
 
-export const SingletonCounterStore = createStore<CounterStoreType>(
-   counterStoreInput,
+export const SingletonCounterStore = store.injectable<CounterStoreType>(
+   { ...counterStoreInput },
    {
       providedIn: 'root',
    }
 );
-export const NonSingletonCounterStore = createStore<CounterStoreType>(
-   counterStoreInput,
-   {
-      providedIn: 'root',
-   }
-);
+export const NonSingletonCounterStore = store.injectable<CounterStoreType>({
+   ...counterStoreInput,
+});
+
+export const t = store<CounterStoreType>({ ...counterStoreInput });

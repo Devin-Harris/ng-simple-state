@@ -1,13 +1,19 @@
 import { inject } from '@angular/core';
-import { Action, createAction } from 'projects/libs/ngxss/src/lib/action';
-import { Selector, createSelector } from 'projects/libs/ngxss/src/lib/selector';
-import { Store, createStore } from 'projects/libs/ngxss/src/public-api';
+
+import { store } from 'projects/libs/ngxss/src/lib/store/store';
+import { Store } from 'projects/libs/ngxss/src/lib/store/types/store-types';
+import {
+   Action,
+   createAction,
+   createSelector,
+   Selector,
+} from 'projects/libs/ngxss/src/public-api';
 import { AsyncLoadApiService } from './async-load-api.service';
 import {
    CallState,
    Error,
-   LoadingState,
    isErrorState,
+   LoadingState,
 } from './async-load-helper.model';
 
 export type AsyncStoreType = Store<{
@@ -22,8 +28,7 @@ export type AsyncStoreType = Store<{
    loading: Selector<boolean>;
    error: Selector<Error | null>;
 }>;
-
-export const AsyncLoadStore = createStore<AsyncStoreType>(
+export const AsyncLoadStore = store.injectable<AsyncStoreType>(
    {
       // Root State
       callState: LoadingState.Init,
