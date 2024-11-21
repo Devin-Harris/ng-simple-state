@@ -39,7 +39,7 @@ The basic idea behind ngx-simple-state is to provide a set of helper function an
 
 1. **Root State**: The root state is the root level fields of your state. Each root level field will be converted into a writable signal that you can update and retrieve as you wish.
 2. **Selectors**: Selectors are derived state from the given root state fields. There are often times when you are storing some value in state, but want to do some computations on that value before say displaying it in the UI. Selectors are great for this as you can consume all the root state fields within the store AND all the other selectors within the store as well. Each selectors is converted into a computed (readonly) signal.
-3. **Actions**: Actions are callable functions that can have some effect on how the state changes. An action, when called, has access to what the state currently is, as well as the capability to change said state in some callback function. Each action can have a payload defined and if it does it is a required input when calling the action. Each action also has an internal subject added to the function object in case more complex rxjs operations need to be triggered off an action call. Actions built inside the `store` helper function also have access to dependency injection if you provide an `injector` in config object. Or you can use the `store.injectable` if you prefer not to define the injector explicitly.
+3. **Actions**: Actions are callable functions that can have some effect on how the state changes. An action, when called, has access to what the state currently is, as well as the capability to change said state in some callback function. Each action can have a payload defined and if it does it is a required input when calling the action. Each action also has an internal subject added to the function object in case more complex rxjs operations need to be triggered off an action call. Actions built inside the `store(...)` helper function also have access to dependency injection if you provide an `injector` in config object. Or you can use the `store.injectable(...)` if you prefer not to define the injector explicitly. For readonly stores, (`store.readonly(...)`, `store.injectable.readonly(...)`, or `store.readonly.injectable(...)`), the root state is converted to a readonly signal, however actions have writable signals of the root state. Essentially readonly stores only allow mutations through action callbacks.
 4. **Nested State**: State objects can be nested within other state objects. In some instances a generic store, such as for handling the loading state of an asynchronous data fetch, would be nice to have defined once and then nested into other more specific store objects.
 
 <a name="usage"/>
@@ -124,7 +124,15 @@ export const CounterStore = store.injectable(counterStateInput, {
 });
 ```
 
-This `CounterStore` (the one built with the `store.injectable`) can then be injected into a component like this:
+You may also want to limit the direct mutability of the root state fields and only allow mutations through actions. You can do this by using the `store.readonly` method:
+
+```typescript
+export const CounterStore = store.readonly(counterStateInput);
+```
+
+In the above `CounterStore.count.set(1)` is not valid, but `state.count.set(1)` within an action callback is. You can also combine readonly stores with injectable like `store.readonly.injectable` or `store.injectable.readonly` if you wish.
+
+Looking back at the `store.injectable` `CounterStore`, we can inject the store into a component like this:
 
 ```typescript
 @Component({
