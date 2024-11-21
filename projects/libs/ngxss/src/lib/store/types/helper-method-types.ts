@@ -1,7 +1,12 @@
 import { Signal, Type } from '@angular/core';
 import { CreateAction, CreateSelector } from '../../../public-api';
 import { NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN } from '../tokens/store-tokens';
-import { InjectableConfig, Store, StoreSignal } from './store-types';
+import {
+   InjectableConfig,
+   Store,
+   StoreMutability,
+   StoreSignal,
+} from './store-types';
 
 type ExcludeActions<T> = {
    [K in keyof T]: T[K] extends CreateAction<any, any> ? never : K;
@@ -54,10 +59,13 @@ export type HelperMethodUnion =
    | PatchHelperMethod<any>
    | ViewHelperMethod<any>
    | ResetHelperMethod<any>;
-export type StoreSignalHelperMethods<T, Readonly extends boolean = false> = {
+export type StoreSignalHelperMethods<
+   T,
+   Mutability extends StoreMutability = StoreMutability.writable
+> = {
    view: ViewHelperMethod<T extends Store<infer T2> ? T2 : T>;
    reset: ResetHelperMethod<T extends Store<infer T2> ? T2 : T>;
-} & (Readonly extends false
+} & (Mutability extends StoreMutability.writable
    ? {
         patch: PatchHelperMethod<T extends Store<infer T2> ? T2 : T>;
      }

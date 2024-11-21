@@ -16,19 +16,24 @@ import {
    NGX_SIMPLE_STATE_INJECTOR_TOKEN,
    NGX_SIMPLE_STATE_STORE_TOKEN,
 } from './tokens/store-tokens';
-import { Store, StoreSignal, StoreSignalConfig } from './types/store-types';
+import {
+   Store,
+   StoreMutability,
+   StoreSignal,
+   StoreSignalConfig,
+} from './types/store-types';
 
 export const store = storeWithVariants;
 
 export function createStore<
    StoreType extends Store<T>,
    T extends {} = {},
-   Readonly extends boolean = false
+   Mutability extends StoreMutability = StoreMutability.writable
 >(
    intialValue: StoreType,
    config: StoreSignalConfig = {},
-   readonly: boolean = false
-): StoreSignal<StoreType, Readonly> {
+   mutability: Mutability
+): StoreSignal<StoreType, Mutability> {
    const keys = Object.keys(intialValue) as (keyof StoreType)[];
 
    if (!intialValue || keys.length === 0) {
@@ -61,13 +66,14 @@ export function createStore<
          storeObj[k] = value;
       } else {
          const s = signal(value);
-         storeObj[k] = readonly ? s.asReadonly() : s;
+         storeObj[k] =
+            mutability === StoreMutability.readonly ? s.asReadonly() : s;
          // Keep writable version of signal so actions can mutate signals
          storeObj[k][NGX_SIMPLE_ACTION_WRITABLE_SIGNAL_TOKEN] = s;
       }
    }
 
-   if (!readonly) {
+   if (mutability === StoreMutability.writable) {
       if (storeObj['patch']) {
          throw new Error(
             `Key \`patch\` is trying to be set multiple times within this store`

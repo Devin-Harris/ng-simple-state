@@ -35,7 +35,10 @@ export type Store<T> = {
       : T[x];
 };
 
-type StoreSignalType<T, Readonly extends boolean = false> = {
+type StoreSignalType<
+   T,
+   Mutability extends StoreMutability = StoreMutability.writable
+> = {
    [x in ExcludeStoreSignalHelperMethods<T>]: T[x] extends CreateSelector<
       T,
       infer R
@@ -43,18 +46,23 @@ type StoreSignalType<T, Readonly extends boolean = false> = {
       ? Signal<R>
       : T[x] extends CreateAction<T, infer P>
       ? ActionType<T, P>
-      : T[x] extends StoreSignal<Store<infer T2>, infer Readonly2>
-      ? StoreSignal<Store<T2>, Readonly2>
-      : Readonly extends true
+      : T[x] extends StoreSignal<Store<infer T2>, infer Mutability2>
+      ? StoreSignal<Store<T2>, Mutability2>
+      : Mutability extends StoreMutability.readonly
       ? Signal<T[x]>
       : WritableSignal<T[x]>;
 };
 
-export type StoreSignal<T, Readonly extends boolean = false> = StoreSignalType<
+export type StoreSignal<
    T,
-   Readonly
-> &
-   StoreSignalHelperMethods<T, Readonly> & {
+   Mutability extends StoreMutability = StoreMutability.writable
+> = StoreSignalType<T, Mutability> &
+   StoreSignalHelperMethods<T, Mutability> & {
       [NGX_SIMPLE_STATE_STORE_TOKEN]: true;
       [NGX_SIMPLE_STATE_INJECTOR_TOKEN]: WritableSignal<Injector | null>;
    };
+
+export enum StoreMutability {
+   'readonly',
+   'writable',
+}

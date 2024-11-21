@@ -5,6 +5,7 @@ import { NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN } from './tokens/store-tokens';
 import {
    InjectableConfig,
    Store,
+   StoreMutability,
    StoreSignal,
    StoreSignalConfig,
 } from './types/store-types';
@@ -25,9 +26,16 @@ function buildReadonlyFn<InitialValueType extends {}>() {
 function createReadonlyStore<InitialValueType extends {}>(
    intialValue: InitialValueType,
    config?: StoreSignalConfig
-): StoreSignal<InitialValueType, true> {
-   const readonlyStore = createStore(intialValue, config, true);
-   return readonlyStore as StoreSignal<InitialValueType, true>;
+): StoreSignal<InitialValueType, StoreMutability.readonly> {
+   const readonlyStore = createStore(
+      intialValue,
+      config,
+      StoreMutability.readonly
+   );
+   return readonlyStore as StoreSignal<
+      InitialValueType,
+      StoreMutability.readonly
+   >;
 }
 
 export type InjectableStoreVariantType = typeof createInjectableStore & {
@@ -47,36 +55,36 @@ function createReadonlyInjectableStore<InitialValueType extends {}>(
    intialValue: InitialValueType,
    config?: InjectableConfig
 ) {
-   return createInjectableStore(intialValue, config, true);
+   return createInjectableStore(intialValue, config, StoreMutability.readonly);
 }
 function createInjectableStore<
    InitialValueType extends {},
-   Readonly extends boolean = false
+   Mutability extends StoreMutability = StoreMutability.writable
 >(
    intialValue: InitialValueType,
    config?: InjectableConfig,
-   readonly?: Readonly
-): Type<StoreSignal<InitialValueType, Readonly>> {
+   mutability?: Mutability
+): Type<StoreSignal<InitialValueType, Mutability>> {
    @Injectable({ providedIn: config?.providedIn || null })
    class InjectableStore {
       constructor(injector: Injector) {
          Object.assign(
             this,
-            readonly
+            mutability === StoreMutability.readonly
                ? store.readonly(intialValue, { injector })
                : store(intialValue, { injector })
          );
       }
    }
 
-   return InjectableStore as Type<StoreSignal<InitialValueType, Readonly>>;
+   return InjectableStore as Type<StoreSignal<InitialValueType, Mutability>>;
 }
 
 function createWritableStore<StoreType extends Store<T>, T extends {} = {}>(
    intialValue: StoreType,
    config: StoreSignalConfig = {}
-): StoreSignal<StoreType> {
-   return createStore(intialValue, config, false);
+): StoreSignal<StoreType, StoreMutability.writable> {
+   return createStore(intialValue, config, StoreMutability.writable);
 }
 
 function addStoreVariants<P extends Function = typeof createWritableStore>(
