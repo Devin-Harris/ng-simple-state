@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { names } from '../state/names';
-import { AsyncLoadWithCallStateStore } from './state/async-load.model';
+import {
+   AsyncLoadWithCallStateStore,
+   CallStateStore,
+} from './state/async-load.model';
 
 @Component({
    selector: 'ngxss-nested-stores-example',
@@ -12,6 +15,7 @@ import { AsyncLoadWithCallStateStore } from './state/async-load.model';
    ],
    standalone: true,
    imports: [CommonModule],
+   providers: [AsyncLoadWithCallStateStore, CallStateStore],
 })
 export class NestedStoresComponent {
    readonly store = inject(AsyncLoadWithCallStateStore);

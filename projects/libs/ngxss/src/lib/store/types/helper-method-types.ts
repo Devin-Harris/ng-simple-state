@@ -3,6 +3,7 @@ import { CreateAction, CreateSelector } from '../../../public-api';
 import { NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN } from '../tokens/store-tokens';
 import {
    InjectableConfig,
+   InjectableStoreSignal,
    Store,
    StoreMutability,
    StoreSignal,
@@ -23,6 +24,8 @@ type ExcludeSelectorsAndActions<T> = {
 type ExcludeSelectorsAndActionsAndStoreSignals<T> = {
    [K in keyof Pick<T, ExcludeSelectorsAndActions<T>>]: T[K] extends Store<any>
       ? never
+      : T[K] extends InjectableStoreSignal<any, any>
+      ? never
       : K;
 }[keyof Pick<T, ExcludeSelectorsAndActions<T>>];
 
@@ -30,9 +33,22 @@ export type StoreSignalWritableParam<T> = Pick<
    T,
    ExcludeSelectorsAndActionsAndStoreSignals<T>
 > & {
-   [x in keyof Pick<T, ExcludeSelectorsAndActions<T>> as T[x] extends Store<any>
+   [x in keyof Pick<
+      T,
+      ExcludeSelectorsAndActions<T>
+   > as T[x] extends InjectableStoreSignal<any, infer Mutability>
+      ? Mutability extends StoreMutability.writable
+         ? x
+         : never
+      : T[x] extends Store<any>
       ? x
-      : never]: T[x] extends Store<infer T2> ? StoreSignalPatchParam<T2> : T[x];
+      : never]: T[x] extends Store<infer T2>
+      ? StoreSignalPatchParam<T2>
+      : T[x] extends InjectableStoreSignal<infer T2, infer Mutability>
+      ? Mutability extends StoreMutability.writable
+         ? StoreSignalPatchParam<T2>
+         : never
+      : T[x];
 };
 
 export type StoreSignalPatchParam<T> = Partial<StoreSignalWritableParam<T>>;

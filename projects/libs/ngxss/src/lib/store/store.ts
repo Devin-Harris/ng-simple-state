@@ -1,4 +1,10 @@
-import { computed, Injector, signal } from '@angular/core';
+import {
+   computed,
+   inject,
+   Injector,
+   runInInjectionContext,
+   signal,
+} from '@angular/core';
 import {
    buildActionFn,
    isAction,
@@ -12,6 +18,7 @@ import {
 } from './store-helper-methods';
 import { storeWithVariants } from './store-variants';
 import {
+   isInjectableStore,
    isStore,
    NGX_SIMPLE_STATE_INJECTOR_TOKEN,
    NGX_SIMPLE_STATE_STORE_TOKEN,
@@ -27,7 +34,7 @@ export const store = storeWithVariants;
 
 export function createStore<
    StoreType extends Store<T>,
-   T extends {} = {},
+   T extends {},
    Mutability extends StoreMutability = StoreMutability.writable
 >(
    intialValue: StoreType,
@@ -64,6 +71,12 @@ export function createStore<
       } else if (isStore(value)) {
          value[NGX_SIMPLE_STATE_INJECTOR_TOKEN].set(injector);
          storeObj[k] = value;
+      } else if (isInjectableStore(value)) {
+         if (injector) {
+            runInInjectionContext(injector, () => {
+               storeObj[k] = inject(value);
+            });
+         }
       } else {
          const s = signal(value);
          storeObj[k] =

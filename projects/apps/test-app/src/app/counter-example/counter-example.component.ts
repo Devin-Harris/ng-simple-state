@@ -4,6 +4,17 @@ import { store } from 'projects/libs/ngxss/src/public-api';
 import { CounterCardComponent } from './components/counter-card.component';
 import { CounterStore, counterStoreInput } from './state/counter.model';
 
+const ReadonlyStore = store.readonly(counterStoreInput);
+const InjectableStore = store.injectable(counterStoreInput, {
+   providedIn: 'root',
+});
+const InjectableReadonlyStore = store.injectable.readonly(counterStoreInput, {
+   providedIn: 'root',
+});
+const ReadonlyInjectableStore = store.readonly.injectable(counterStoreInput, {
+   providedIn: 'root',
+});
+
 @Component({
    selector: 'ngxss-counter-example',
    templateUrl: './counter-example.component.html',
@@ -16,15 +27,8 @@ import { CounterStore, counterStoreInput } from './state/counter.model';
 })
 export class CounterExampleComponent {
    readonly globalStore = CounterStore;
-
-   readonlyStore = store.readonly(counterStoreInput);
-   readonlyInjectableStore = inject(
-      store.readonly.injectable(counterStoreInput, { providedIn: 'root' })
-   );
-   injectableStore = inject(
-      store.injectable(counterStoreInput, { providedIn: 'root' })
-   );
-   injectableReadonlyStore = inject(
-      store.injectable.readonly(counterStoreInput, { providedIn: 'root' })
-   );
+   readonly readonlyStore = ReadonlyStore;
+   readonly injectableStore = inject(InjectableStore);
+   readonly injectableReadonlyStore = inject(InjectableReadonlyStore);
+   readonly readonlyInjectableStore = inject(ReadonlyInjectableStore);
 }

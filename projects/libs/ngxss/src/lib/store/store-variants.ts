@@ -1,9 +1,13 @@
-import { Injectable, Injector, Type } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { createStore } from '../../public-api';
 import { store } from './store';
-import { NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN } from './tokens/store-tokens';
+import {
+   NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN,
+   NGX_SIMPLE_STATE_INJECTABLE_STORE_TOKEN,
+} from './tokens/store-tokens';
 import {
    InjectableConfig,
+   InjectableStoreSignal,
    Store,
    StoreMutability,
    StoreSignal,
@@ -64,7 +68,7 @@ function createInjectableStore<
    intialValue: InitialValueType,
    config?: InjectableConfig,
    mutability?: Mutability
-): Type<StoreSignal<InitialValueType, Mutability>> {
+): InjectableStoreSignal<InitialValueType, Mutability> {
    @Injectable({ providedIn: config?.providedIn || null })
    class InjectableStore {
       constructor(injector: Injector) {
@@ -76,8 +80,14 @@ function createInjectableStore<
          );
       }
    }
+   Object.assign(InjectableStore, {
+      [NGX_SIMPLE_STATE_INJECTABLE_STORE_TOKEN]: true,
+   });
 
-   return InjectableStore as Type<StoreSignal<InitialValueType, Mutability>>;
+   return InjectableStore as InjectableStoreSignal<
+      InitialValueType,
+      Mutability
+   >;
 }
 
 function createWritableStore<StoreType extends Store<T>, T extends {} = {}>(

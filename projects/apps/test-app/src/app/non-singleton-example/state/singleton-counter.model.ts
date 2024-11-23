@@ -24,5 +24,3 @@ export const SingletonCounterStore = store.injectable<CounterStoreType>(
 export const NonSingletonCounterStore = store.injectable<CounterStoreType>({
    ...counterStoreInput,
 });
-
-export const t = store<CounterStoreType>({ ...counterStoreInput });

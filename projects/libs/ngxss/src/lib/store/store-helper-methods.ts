@@ -3,6 +3,7 @@ import { isAction } from '../actions/action';
 import { isSelector } from '../selectors/selector';
 import {
    isHelperMethod,
+   isInjectableStore,
    isInjector,
    isStore,
    NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN,
@@ -75,7 +76,7 @@ export function buildResetFn<InitialValueType>(
          const v = store[k];
          const s = intialValue[k as keyof InitialValueType];
 
-         if (isStore(s)) {
+         if (isStore(s) || isInjectableStore(s)) {
             // @ts-ignore
             store[k].reset(store[k], intialValue[k]);
             continue;
