@@ -21,8 +21,12 @@ export class NestedStoresComponent {
    readonly store = inject(AsyncLoadWithCallStateStore);
 
    constructor() {
-      const { loadEntity, loadEntitySuccess, loadEntityFailure } =
-         this.store.events;
+      const {
+         loadEntity,
+         loadEntitySuccess,
+         loadEntityFailure,
+         callStateStore,
+      } = this.store.events;
 
       loadEntity.subscribe(({ id }) => {
          console.log(`Loading Entity ${id}`);

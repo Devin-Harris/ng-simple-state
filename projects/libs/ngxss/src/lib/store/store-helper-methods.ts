@@ -110,6 +110,10 @@ export function buildEventsFn<InitialValueType>(
          // @ts-ignore
          events[k] = store[k].subject;
       }
+      if (isStore(store[k])) {
+         // @ts-ignore
+         events[k] = buildEventsFn(store[k]);
+      }
    });
 
    Object.assign(events, { [NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN]: true });
