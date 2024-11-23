@@ -57,6 +57,7 @@ export function buildActionFn<
       } else {
          (value as Function)(stateWithWritableFields, props);
       }
+
       subject.next(props);
    };
 

@@ -12,6 +12,7 @@ import {
 } from '../../public-api';
 import { isSelector } from '../selectors/selector';
 import {
+   buildEventsFn,
    buildPatchFn,
    buildResetFn,
    buildViewFn,
@@ -93,11 +94,11 @@ export function createStore<
          );
       }
       storeObj.patch = buildPatchFn(storeObj);
-      if (storeObj['view']) {
-         throw new Error(
-            `Key \`view\` is trying to be set multiple times within this store`
-         );
-      }
+   }
+   if (storeObj['view']) {
+      throw new Error(
+         `Key \`view\` is trying to be set multiple times within this store`
+      );
    }
    storeObj.view = buildViewFn(storeObj);
    if (storeObj['reset']) {
@@ -106,6 +107,12 @@ export function createStore<
       );
    }
    storeObj.reset = buildResetFn(storeObj, intialValue);
+   if (storeObj['events']) {
+      throw new Error(
+         `Key \`events\` is trying to be set multiple times within this store`
+      );
+   }
+   storeObj.events = buildEventsFn(storeObj);
 
    Object.assign(storeObj, {
       [NGX_SIMPLE_STATE_STORE_TOKEN]: true,
