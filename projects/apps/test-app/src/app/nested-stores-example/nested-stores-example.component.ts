@@ -43,5 +43,6 @@ export class NestedStoresComponent {
 
    onResetCallState() {
       this.store.callStateStore.reset();
+      this.store.callStateStore2.reset();
    }
 }
