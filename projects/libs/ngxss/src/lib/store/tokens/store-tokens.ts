@@ -1,4 +1,4 @@
-import { Injector, WritableSignal } from '@angular/core';
+import { Injector, Type, WritableSignal } from '@angular/core';
 import { HelperMethodUnion } from '../types/helper-method-types';
 import { StoreSignal } from '../types/store-types';
 
@@ -7,6 +7,13 @@ export const NGX_SIMPLE_STATE_STORE_TOKEN = Symbol(
 );
 export function isStore<T>(obj: any): obj is StoreSignal<T> {
    return obj && obj[NGX_SIMPLE_STATE_STORE_TOKEN];
+}
+
+export const NGX_SIMPLE_STATE_INJECTABLE_STORE_TOKEN = Symbol(
+   'NGX_SIMPLE_STATE_INJECTABLE_STORE_TOKEN'
+);
+export function isInjectableStore<T>(obj: any): obj is Type<StoreSignal<T>> {
+   return obj && obj[NGX_SIMPLE_STATE_INJECTABLE_STORE_TOKEN];
 }
 
 export const NGX_SIMPLE_STATE_INJECTOR_TOKEN = Symbol(

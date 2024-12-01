@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { names } from '../state/names';
-import { AsyncLoadWithCallStateStore } from './state/async-load.model';
+import {
+   AsyncLoadWithCallStateStore,
+   CallStateStore,
+} from './state/async-load.model';
 
 @Component({
    selector: 'ngxss-nested-stores-example',
@@ -12,19 +15,28 @@ import { AsyncLoadWithCallStateStore } from './state/async-load.model';
    ],
    standalone: true,
    imports: [CommonModule],
+   providers: [AsyncLoadWithCallStateStore, CallStateStore],
 })
 export class NestedStoresComponent {
    readonly store = inject(AsyncLoadWithCallStateStore);
 
    constructor() {
-      this.store.loadEntity.subject.subscribe(({ id }) => {
+      const {
+         loadEntity,
+         loadEntitySuccess,
+         loadEntityFailure,
+         callStateStore,
+      } = this.store.events;
+
+      loadEntity.subscribe(({ id }) => {
          console.log(`Loading Entity ${id}`);
       });
-      this.store.loadEntitySuccess.subject.subscribe(
-         ({ entityId, entityName }) => {
-            console.log(`Entity ${entityId} (${entityName}) has loaded`);
-         }
-      );
+      loadEntitySuccess.subscribe(({ entityId, entityName }) => {
+         console.log(`Entity ${entityId} (${entityName}) has loaded`);
+      });
+      loadEntityFailure.subscribe(({ error }) => {
+         console.log(`Error: ${error}`);
+      });
    }
 
    onLoad() {
@@ -39,5 +51,6 @@ export class NestedStoresComponent {
 
    onResetCallState() {
       this.store.callStateStore.reset();
+      this.store.callStateStore2.reset();
    }
 }

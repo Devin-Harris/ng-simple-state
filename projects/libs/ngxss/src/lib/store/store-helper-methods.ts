@@ -3,11 +3,13 @@ import { isAction } from '../actions/action';
 import { isSelector } from '../selectors/selector';
 import {
    isHelperMethod,
+   isInjectableStore,
    isInjector,
    isStore,
    NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN,
 } from './tokens/store-tokens';
-import { StoreSignalPatchParam } from './types/helper-method-types';
+import { StoreEvents } from './types/event-types';
+import { StoreSignalPatchParam } from './types/patch-types';
 import { StoreSignal } from './types/store-types';
 
 export function buildViewFn<InitialValueType>(
@@ -75,7 +77,7 @@ export function buildResetFn<InitialValueType>(
          const v = store[k];
          const s = intialValue[k as keyof InitialValueType];
 
-         if (isStore(s)) {
+         if (isStore(s) || isInjectableStore(s)) {
             // @ts-ignore
             store[k].reset(store[k], intialValue[k]);
             continue;
@@ -95,4 +97,25 @@ export function buildResetFn<InitialValueType>(
    };
    Object.assign(fn, { [NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN]: true });
    return fn;
+}
+
+export function buildEventsFn<InitialValueType>(
+   store: StoreSignal<InitialValueType>
+) {
+   const events: StoreEvents<InitialValueType> | {} = {};
+
+   const keys = Object.keys(store) as (keyof typeof store)[];
+   keys.forEach((k) => {
+      if (isAction(store[k])) {
+         // @ts-ignore
+         events[k] = store[k].subject;
+      }
+      if (isStore(store[k])) {
+         // @ts-ignore
+         events[k] = buildEventsFn(store[k]);
+      }
+   });
+
+   Object.assign(events, { [NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN]: true });
+   return events;
 }
