@@ -2,8 +2,11 @@ import {
    computed,
    inject,
    Injector,
+   isSignal,
    runInInjectionContext,
+   Signal,
    signal,
+   WritableSignal,
 } from '@angular/core';
 import {
    buildActionFn,
@@ -119,4 +122,10 @@ export function createStore<
    });
 
    return storeObj;
+}
+
+export function isStoreSignal<T>(obj: any): obj is Signal<T> & {
+   [NGX_SIMPLE_ACTION_WRITABLE_SIGNAL_TOKEN]: WritableSignal<T>;
+} {
+   return obj && obj[NGX_SIMPLE_ACTION_WRITABLE_SIGNAL_TOKEN] && isSignal(obj);
 }

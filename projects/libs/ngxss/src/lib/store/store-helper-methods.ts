@@ -1,12 +1,18 @@
-import { computed, WritableSignal } from '@angular/core';
+import { computed, isSignal, WritableSignal } from '@angular/core';
+import { SIGNAL } from '@angular/core/primitives/signals';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
+import { NGX_SIMPLE_ACTION_WRITABLE_SIGNAL_TOKEN } from '../../public-api';
 import { isAction } from '../actions/action';
 import { isSelector } from '../selectors/selector';
+import { isStoreSignal } from './store';
 import {
    isHelperMethod,
    isInjectableStore,
    isInjector,
    isStore,
    NGX_SIMPLE_STATE_HELPER_METHOD_TOKEN,
+   NGX_SIMPLE_STATE_INJECTOR_TOKEN,
 } from './tokens/store-tokens';
 import { StoreEvents } from './types/event-types';
 import { StoreSignalPatchParam } from './types/patch-types';
@@ -102,17 +108,60 @@ export function buildResetFn<InitialValueType>(
 export function buildEventsFn<InitialValueType>(
    store: StoreSignal<InitialValueType>
 ) {
-   const events: StoreEvents<InitialValueType> | {} = {};
+   const events: StoreEvents<InitialValueType> =
+      {} as StoreEvents<InitialValueType>;
 
    const keys = Object.keys(store) as (keyof typeof store)[];
    keys.forEach((k) => {
-      if (isAction(store[k])) {
-         // @ts-ignore
-         events[k] = store[k].subject;
+      const value = store[k];
+      if (isSignal(value)) {
+         const injector = store[NGX_SIMPLE_STATE_INJECTOR_TOKEN]();
+         if (injector) {
+            //@ts-ignore
+            events[k] = toObservable(value, { injector });
+         } else {
+            const subject = new Subject();
+
+            //@ts-ignore
+            const recomputeFn = value[SIGNAL].producerRecomputeValue;
+            //@ts-ignore
+            value[SIGNAL].producerRecomputeValue = (node) => {
+               const old = node.value;
+               recomputeFn(node);
+               if (!node.equal(old, node.value)) {
+                  subject.next(node.value);
+               }
+            };
+
+            if (isStoreSignal(value)) {
+               const writableSignal =
+                  value[NGX_SIMPLE_ACTION_WRITABLE_SIGNAL_TOKEN];
+               const oldSet = writableSignal['set'];
+               const oldUpdate = writableSignal['update'];
+               //@ts-ignore
+               writableSignal['set'] = (v) => {
+                  oldSet(v);
+                  subject.next(v);
+               };
+               //@ts-ignore
+               writableSignal['update'] = (updateFn) => {
+                  oldUpdate(updateFn);
+                  subject.next(writableSignal());
+               };
+            }
+
+            // @ts-ignore
+            events[k] = subject;
+         }
       }
-      if (isStore(store[k])) {
+
+      if (isAction(value)) {
          // @ts-ignore
-         events[k] = buildEventsFn(store[k]);
+         events[k] = value.subject;
+      }
+      if (isStore(value)) {
+         // @ts-ignore
+         events[k] = buildEventsFn(value);
       }
    });
 
