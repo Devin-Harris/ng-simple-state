@@ -82,9 +82,15 @@ export function createStore<
             });
          }
       } else {
-         const s = signal(value);
+         const s = (
+            isSignal(value) ? value : signal(value)
+         ) as WritableSignal<any>;
          storeObj[k] =
-            mutability === StoreMutability.readonly ? s.asReadonly() : s;
+            mutability === StoreMutability.readonly
+               ? s.asReadonly
+                  ? s.asReadonly()
+                  : s
+               : s;
          // Keep writable version of signal so actions can mutate signals
          storeObj[k][NGX_SIMPLE_ACTION_WRITABLE_SIGNAL_TOKEN] = s;
       }

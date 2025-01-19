@@ -29,6 +29,8 @@ export type Store<T> = {
       ? CreateSelector<Store<T>, R>
       : T[x] extends Action<infer P>
       ? CreateAction<Store<T>, P>
+      : T[x] extends Signal<any>
+      ? T[x]
       : T[x] extends Store<infer T2>
       ? StoreSignal<Store<T2>, any> | InjectableStoreSignal<Store<T2>, any>
       : T[x] extends InjectableStoreSignal<Store<infer T3>, infer Mutability>
@@ -57,6 +59,8 @@ type StoreSignalType<
       ? T[x] extends StoreSignal<Store<T2>, Mutability2>
          ? StoreSignal<Store<T2>, Mutability2>
          : StoreSignal<Store<T3>, Mutability3>
+      : T[x] extends Signal<any>
+      ? T[x]
       : Mutability extends StoreMutability.readonly
       ? Signal<T[x]>
       : WritableSignal<T[x]>;
